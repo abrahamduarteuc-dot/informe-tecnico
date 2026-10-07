@@ -77,6 +77,8 @@ button,input,select,textarea{font:inherit;color:inherit}
 .hoja{background:var(--panel);border:1px solid var(--linea);border-radius:12px;padding:20px}
 @media(max-width:900px){.hoja{padding:15px;border-radius:10px}}
 .hoja h2{margin:0 0 4px;font-size:21px;font-weight:600;letter-spacing:-.2px}
+.cabsec{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.cabsec h2{flex:1;min-width:150px}
 .pista{margin:0 0 16px;color:var(--tinta-2);font-size:14px;max-width:64ch}
 label.campo{display:block;margin-bottom:14px}
 label.campo span{display:block;font-size:13.5px;font-weight:500;margin-bottom:5px}
@@ -314,6 +316,7 @@ table.matriz td.na{color:var(--tinta-2)}
 </dialog>
 
 <script src="exportar.js"></script>
+<script src="prompts.js"></script>
 <script>
 
 const SEC = {
@@ -621,7 +624,8 @@ function vistaCumplimiento(){
 
 function vistaCuerpo(id){
   const bl=doc[id]||[], conTablas=["desarrollo","resumen","acuerdos","anexos","motivos"].indexOf(id)>=0;
-  return '<section class="hoja" data-sec="'+id+'"><h2>'+esc(rotulo(doc.tipo,id))+'</h2>'+
+  return '<section class="hoja" data-sec="'+id+'"><div class="cabsec"><h2>'+esc(rotulo(doc.tipo,id))+'</h2>'+
+  (iaDe(doc.tipo,id)?'<button class="btn mini" data-ia="'+id+'" title="Copia el texto de esta sección con las instrucciones para tu IA">Asesor</button>':'')+'</div>'+
   '<p class="pista">'+esc(SEC[id].pista)+'</p>'+
   '<div class="zona" id="zona-'+id+'"><p>Arrastra aquí fotos, planillas de Excel, PDF o correos.<br>En el teléfono, toca para elegir archivos.</p></div>'+
   '<div class="acciones">'+
@@ -674,6 +678,43 @@ function nombreArchivo(ext){ return Exp.nombreBase(doc)+"."+ext; }
 const CFG={TIPOS:TIPOS,rotulo:rotulo,secsDe:secsDe,graficoSVG:graficoSVG};
 let editando=false;
 
+/* ---- ayuda de redacción: qué prompt corresponde a cada sección ---- */
+const MAPA_IA={
+  base:{antecedentes:"antecedentes",objetivo:"objetivo",desarrollo:"desarrollo",conclusiones:"conclusiones"},
+  visita:{objetivo:"objetivo",desarrollo:"visita",acuerdos:"acuerdos"},
+  semanal:{objetivo:"objetivo",motivos:"motivos",resumen:"trabajo",conclusiones:["conclusiones",60]}
+};
+function iaDe(tipoDoc,sec){
+  const v=(MAPA_IA[tipoDoc]||MAPA_IA.base)[sec]; if(!v) return null;
+  return Array.isArray(v)?{tipo:v[0],max:v[1]}:{tipo:v};
+}
+function copiarTexto(txt){
+  if(navigator.clipboard&&window.isSecureContext) return navigator.clipboard.writeText(txt).then(()=>true,()=>respaldoCopia(txt));
+  return Promise.resolve(respaldoCopia(txt));
+}
+function respaldoCopia(txt){
+  const t=document.createElement("textarea"); t.value=txt; t.style.cssText="position:fixed;opacity:0;top:0";
+  document.body.appendChild(t); t.focus(); t.select(); t.setSelectionRange(0,txt.length);
+  let ok=false; try{ ok=document.execCommand("copy"); }catch(e){} document.body.removeChild(t); return ok;
+}
+function copiarParaIA(sec){
+  const m=iaDe(doc.tipo,sec); if(!m) return;
+  const texto=(doc[sec]||[]).filter(b=>b.tipo==="texto"&&(b.txt||"").trim()).map(b=>b.txt.trim()).join("\n\n");
+  if(!texto){ avisar("Escribe primero un texto en esta sección."); return; }
+  copiarTexto(Prompts.armar(m.tipo,texto,m.max)).then(ok=>
+    avisar(ok?"Copiado. Pégalo en tu IA y trae de vuelta la parte TEXTO.":"No se pudo copiar."));
+}
+/* las marcas [completar: …] que deja la IA y todavía no se llenaron */
+function marcasIA(){
+  const out=[];
+  secsDe(doc.tipo).forEach(s=>{
+    if(BLOQUES_SECS.indexOf(s)<0) return;
+    let n=0; (doc[s]||[]).forEach(b=>{ if(b.tipo==="texto") n+=((b.txt||"").match(/\[completar[^\]]*\]/gi)||[]).length; });
+    if(n) out.push({s:s,n:n});
+  });
+  return out;
+}
+
 function vistaRevisar(){
   const r=req(), faltan=r.filter(c=>!campoLleno(c));
   const nom=c=>CABECERA[c]||rotulo(doc.tipo,c);
@@ -681,6 +722,9 @@ function vistaRevisar(){
   '<p class="pista no-print">Así va a salir el informe. Si ves algo que corregir, toca «Editar aquí».</p>'+
   (faltan.length?'<div class="aviso no-print"><b>Falta completar</b>'+faltan.map(nom).join(", ")+'. Puedes exportar igual; lo que falte sale marcado en rojo.</div>'
     :'<div class="aviso ok no-print"><b>Informe completo</b>Según lo definido para «'+TIPOS[doc.tipo].et+'».</div>')+
+  (marcasIA().length?'<div class="aviso no-print"><b>Quedan datos por completar</b>'+
+    marcasIA().map(x=>esc(rotulo(doc.tipo,x.s))+' ('+x.n+')').join(", ")+
+    '. Son las marcas [completar: …] que dejó la IA. Si exportas ahora, salen tal cual en el informe.</div>':'')+
   '<div class="acciones no-print" style="margin:16px 0">'+
   '<button class="btn p" id="expWord">Descargar Word</button>'+
   '<button class="btn p" id="expPDF">Descargar PDF</button>'+
@@ -795,6 +839,7 @@ function conectar(){
            setTimeout(()=>document.getElementById("pegaTabla").focus(),60); }});
   p.querySelectorAll("[data-pick]").forEach(b=>b.onclick=()=>{
     destinoSec=b.dataset.sec; document.getElementById(b.dataset.pick).click();});
+  p.querySelectorAll("[data-ia]").forEach(b=>b.onclick=()=>copiarParaIA(b.dataset.ia));
   const ob=document.getElementById("abrirOblig"); if(ob) ob.onclick=abrirObligatorios;
 
   const z=p.querySelector(".zona");

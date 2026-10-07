@@ -1,18 +1,20 @@
 /* Service worker: deja la app disponible sin conexión.
    No guarda datos de usuario; solo los archivos de la propia página. */
-const CACHE = "informe-v2";
+const CACHE = "informe-v3";
 
 /* lo imprescindible para abrir la app */
 const NUCLEO = [
   "./",
   "./index.html",
   "./exportar.js",
+  "./prompts.js",
   "./manifest.webmanifest",
   "./icon-192.png",
   "./icon-512.png"
 ];
 /* lo pesado: se intenta guardar, pero si falla no impide instalar */
 const OPCIONAL = [
+  "./redactor.html",
   "./xlsx.full.min.js",
   "./docx.min.js",
   "./jspdf.umd.min.js",
@@ -62,7 +64,9 @@ self.addEventListener("fetch", e => {
   const url = new URL(req.url);
 
   if (req.mode === "navigate") {
-    e.respondWith(redPrimero(req, "./index.html"));
+    /* cada página guarda su propia copia; solo la raíz y index.html comparten la de la app */
+    const esApp = url.pathname.endsWith("/") || url.pathname.endsWith("/index.html");
+    e.respondWith(redPrimero(req, esApp ? "./index.html" : req));
     return;
   }
   const propio = url.origin === self.location.origin;

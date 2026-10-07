@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Redactor técnico</title>
+<style>
+:root{
+  --azul:#0B57A4; --azul-osc:#07386b; --tinta:#15191f; --tinta-2:#4a5560; --linea:#d8dee6;
+  --fondo:#eef1f5; --panel:#fff; --panel-2:#f7f9fb; --verde:#3f7a2e;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root{ --tinta:#e6ebf1; --tinta-2:#9aa6b3; --linea:#2c3440; --fondo:#11151a; --panel:#1a1f27; --panel-2:#151a21; --azul:#4d9bea; --verde:#56a83f; }
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--fondo);color:var(--tinta);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:640px;margin:0 auto;padding:18px 14px 60px}
+h1{font-size:22px;margin:6px 0 4px;letter-spacing:-.2px}
+.sub{margin:0 0 18px;color:var(--tinta-2);font-size:14px}
+.card{background:var(--panel);border:1px solid var(--linea);border-radius:12px;padding:16px}
+label{display:block;font-weight:600;font-size:13.5px;margin:0 0 5px}
+select,textarea,input[type=number]{width:100%;font:inherit;color:inherit;background:var(--panel-2);border:1px solid var(--linea);border-radius:8px;padding:10px 11px}
+select:focus,textarea:focus,input:focus{outline:2px solid var(--azul);outline-offset:-1px;border-color:var(--azul)}
+textarea{min-height:190px;resize:vertical;line-height:1.55}
+.fila{display:grid;grid-template-columns:1fr 130px;gap:12px;margin-bottom:14px}
+.campo{margin-bottom:14px}
+.ayuda{font-size:12.5px;color:var(--tinta-2);margin:5px 0 0}
+button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--linea);background:var(--panel);color:inherit;padding:12px 14px;min-height:46px;font-weight:600;width:100%}
+button.p{background:var(--azul);border-color:var(--azul);color:#fff;font-size:16px}
+button.p:active{background:var(--azul-osc)}
+button:focus-visible{outline:2px solid var(--azul);outline-offset:2px}
+.botones{display:grid;gap:8px;margin-top:6px}
+#estado{min-height:1.4em;margin:12px 0 0;font-size:14px;font-weight:600}
+#estado.ok{color:var(--verde)} #estado.mal{color:#b3261e}
+ol.pasos{margin:12px 0 0;padding-left:20px;color:var(--tinta-2);font-size:14px}
+details{margin-top:16px;border-top:1px solid var(--linea);padding-top:12px}
+summary{cursor:pointer;font-weight:600;font-size:14px}
+pre{white-space:pre-wrap;word-break:break-word;font:12.5px/1.5 ui-monospace,Menlo,Consolas,monospace;background:var(--panel-2);border:1px solid var(--linea);border-radius:8px;padding:12px;margin:10px 0 0;max-height:340px;overflow:auto}
+.nota{margin-top:14px;font-size:12.5px;color:var(--tinta-2)}
+</style>
+</head>
+<body>
+<main>
+  <h1>Redactor técnico</h1>
+  <p class="sub">Pega tu texto o apuntes, copia y pégalo en tu IA. Te devuelve el texto directo y deja <b>[completar: …]</b> donde falta un dato.</p>
+
+  <div class="card">
+    <div class="fila">
+      <div>
+        <label for="tipo">¿Qué estás escribiendo?</label>
+        <select id="tipo"></select>
+      </div>
+      <div>
+        <label for="max">Máx. palabras</label>
+        <input type="number" id="max" min="10" max="600" step="10" inputmode="numeric">
+      </div>
+    </div>
+
+    <div class="campo">
+      <label for="texto">Tu texto o apuntes</label>
+      <textarea id="texto" placeholder="Pega aquí lo que escribiste, aunque sean apuntes sueltos con los datos."></textarea>
+      <p class="ayuda" id="ayudaTipo"></p>
+    </div>
+
+    <div class="botones">
+      <button class="p" id="copiar">Copiar para la IA</button>
+      <button id="copiarSolo">Copiar solo el prompt (sin mi texto)</button>
+    </div>
+    <p id="estado" role="status"></p>
+    <ol class="pasos">
+      <li>Toca «Copiar para la IA».</li>
+      <li>Abre tu IA y pega.</li>
+      <li>Envía. Donde veas <b>[completar: …]</b>, pones tú el dato.</li>
+    </ol>
+
+    <details>
+      <summary>Ver el prompt completo</summary>
+      <pre id="vista"></pre>
+    </details>
+  </div>
+  <p class="nota">Pégalo solo en la IA que tu empresa autorice. Esta página no guarda ni envía nada: todo queda en tu equipo.</p>
+</main>
+
+<script src="prompts.js"></script>
+<script>
+var TIPOS = Prompts.TIPOS, armar = Prompts.armar;
+
+/* ---- interfaz ---- */
+var $ = function (id) { return document.getElementById(id); };
+var sel = $("tipo");
+var grupos = {};
+Object.keys(TIPOS).forEach(function (k) {
+  if (TIPOS[k].oculto) return;
+  var g = TIPOS[k].g;
+  if (!grupos[g]) { grupos[g] = document.createElement("optgroup"); grupos[g].label = g; sel.appendChild(grupos[g]); }
+  var o = document.createElement("option"); o.value = k; o.textContent = TIPOS[k].n; grupos[g].appendChild(o);
+});
+
+function cambiarTipo() {
+  var t = TIPOS[sel.value];
+  $("max").value = t.max || ""; $("max").disabled = !t.max;
+  $("ayudaTipo").textContent = t.ayuda;
+  vista();
+}
+function maxActual() { var v = parseInt($("max").value, 10); return v > 0 ? v : TIPOS[sel.value].max; }
+function vista() { $("vista").textContent = armar(sel.value, "", maxActual()); }
+function aviso(txt, ok) { var e = $("estado"); e.textContent = txt; e.className = ok ? "ok" : "mal"; }
+
+function copiar(txt) {
+  function respaldo() {
+    var t = document.createElement("textarea"); t.value = txt; t.style.cssText = "position:fixed;opacity:0;top:0";
+    document.body.appendChild(t); t.focus(); t.select(); t.setSelectionRange(0, txt.length);
+    var ok = false; try { ok = document.execCommand("copy"); } catch (e) {}
+    document.body.removeChild(t); return ok;
+  }
+  if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(txt).then(function () { return true; }, function () { return respaldo(); });
+  return Promise.resolve(respaldo());
+}
+
+$("copiar").onclick = function () {
+  var texto = $("texto").value;
+  if (!texto.trim()) { aviso("Pega primero tu texto o apuntes.", false); $("texto").focus(); return; }
+  copiar(armar(sel.value, texto, maxActual())).then(function (ok) {
+    ok ? aviso("Copiado. Ahora pégalo en tu IA y envía.", true) : aviso("No se pudo copiar. Abre «Ver el prompt completo» y cópialo a mano.", false);
+  });
+};
+$("copiarSolo").onclick = function () {
+  copiar(armar(sel.value, "", maxActual())).then(function (ok) {
+    ok ? aviso("Prompt copiado. Pégalo en tu IA y luego escribe o pega tu texto al final.", true) : aviso("No se pudo copiar.", false);
+  });
+};
+sel.onchange = cambiarTipo; $("max").oninput = vista;
+cambiarTipo();
+</script>
+</body>
+</html>
