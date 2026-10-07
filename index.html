@@ -103,7 +103,7 @@ table.datos{border-collapse:collapse;font-family:"IBM Plex Mono",monospace;font-
 table.datos td,table.datos th{border:1px solid var(--linea);padding:4px 7px;white-space:nowrap}
 table.datos th{background:color-mix(in srgb,var(--azul) 12%,transparent);font-weight:600;text-align:left}
 table.datos td[contenteditable]:focus,table.datos th[contenteditable]:focus{outline:2px solid var(--azul);outline-offset:-2px;background:var(--panel)}
-.bloque img.foto{max-height:300px;border-radius:6px;display:block;margin:0 auto}
+.bloque img.foto{max-width:100%;height:auto;border-radius:6px;display:block;margin:0 auto}
 .adj{display:flex;gap:10px;align-items:center;font-size:14px;flex-wrap:wrap}
 .adj .ico{width:34px;height:34px;flex:none;border-radius:7px;background:var(--azul);color:#fff;
   display:grid;place-items:center;font-size:10px;font-weight:700;font-family:"IBM Plex Mono",monospace}
@@ -113,26 +113,44 @@ table.datos td[contenteditable]:focus,table.datos th[contenteditable]:focus{outl
   background:var(--panel-2);font-size:14px;display:flex;gap:8px;align-items:center}
 .opciones label:has(input:checked){border-color:var(--azul);background:color-mix(in srgb,var(--azul) 10%,transparent);font-weight:600}
 
-.papel{background:var(--papel);color:#15191f;max-width:820px;margin:0 auto;padding:38px 44px;
-  border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,.18)}
-@media(max-width:620px){.papel{padding:18px 14px}}
+.papel{background:var(--papel);color:#15191f;max-width:820px;margin:0 auto;padding:34px 40px;border-radius:4px;
+  box-shadow:0 1px 4px rgba(0,0,0,.18);overflow:hidden;font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
+@media(max-width:620px){.papel{padding:16px 12px}}
 .papel .enc{text-align:center;border-bottom:2px solid #15191f;padding-bottom:10px;margin-bottom:18px}
-.papel .enc h1{font-family:Fraunces,Georgia,serif;font-size:34px;font-weight:600;letter-spacing:.14em;
-  margin:0;line-height:1.1}
+.papel .enc h1{font-family:Fraunces,Georgia,serif;font-size:34px;font-weight:600;letter-spacing:.14em;margin:0;line-height:1.1}
 .papel .enc p{margin:4px 0 0;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#4a5560}
-.papel table.doc{width:100%;border-collapse:collapse;font-size:13px}
-.papel table.doc td{border:1px solid #9aa6b3;padding:7px 9px;vertical-align:top}
-.papel table.doc td.et{width:140px;background:#eef1f5;font-weight:600}
-.papel .etapa{font-size:12px;font-weight:600}
-.papel .etapa span{margin-right:12px;white-space:nowrap}
-.papel figure{margin:12px 0;text-align:center}
-.papel figure table.datos{margin:0 auto;display:inline-table;min-width:0;font-size:11px;text-align:left}
-.papel table.datos td,.papel table.datos th{border:1px solid #9aa6b3;white-space:normal}
-.papel table.datos th{background:#eef1f5}
-.papel figure img{display:block;margin:0 auto;max-height:320px}
+.papel table.doc{width:100%;table-layout:fixed;border-collapse:collapse;font-size:13px}
+.papel table.doc td{border:1px solid #9aa6b3;padding:7px 9px;vertical-align:top;overflow-wrap:anywhere}
+.papel table.doc td.et{background:#eef1f5;font-weight:600}
+.papel table.doc td.tit{padding:6px 9px;font-size:12.5px}
+.papel table.doc col.c1{width:27%}
+@media(max-width:620px){
+  .papel table.doc col.c1{width:33%}
+  .papel table.doc td.et{font-size:12px;padding:6px;overflow-wrap:normal;word-break:normal}
+  .papel table.doc td.tit{font-size:12.5px;padding:6px 9px}
+}
+.papel .tx{white-space:pre-wrap;text-align:justify;margin:0 0 6px;overflow-wrap:anywhere}
+.papel .tx:last-child{margin-bottom:0}
+.papel .extra{color:#4a5560}
+.papel .tw{overflow-x:auto;max-width:100%}
+.papel figure{margin:10px 0;text-align:center}
+.papel table.datos{width:100%;table-layout:auto;border-collapse:collapse;font-family:inherit;font-size:11px;margin:0 auto;text-align:left;min-width:0}
+.papel table.datos td,.papel table.datos th{border:1px solid #9aa6b3;padding:3px 5px;white-space:normal;overflow-wrap:break-word;vertical-align:middle}
+.papel table.datos th{background:#eef1f5;font-weight:600}
+.papel figure img{display:block;margin:0 auto;max-width:100%;height:auto}
 .papel figcaption{font-size:11px;color:#4a5560;margin-top:4px;text-align:center}
 .papel .vacio{color:#b3261e;font-style:italic}
-.papel .adjlinea{text-align:center;font-size:12px;margin:6px 0}
+.papel .adjlinea{text-align:center;font-size:12px;margin:6px 0;color:#4a5560}
+.papel.edit [contenteditable]{outline:1px dashed rgba(11,87,164,.4);outline-offset:1px;border-radius:2px;min-height:1em}
+.papel.edit [contenteditable]:focus{outline:2px solid #0B57A4;background:#f2f7fd}
+.papel.edit [contenteditable]:empty::before{content:attr(data-ph);color:#8a97a5;font-style:italic}
+.papel.edit .cmp:empty::before{color:#b3261e}
+.tam{display:flex;gap:8px;align-items:center;padding:8px 10px;border-top:1px dashed var(--linea);font-size:13px}
+.tam span{color:var(--tinta-2)}
+.tam input{flex:1;min-width:80px;accent-color:var(--azul)}
+.tam b{min-width:44px;text-align:right;font-family:"IBM Plex Mono",monospace;font-size:12.5px}
+.papel .tam{border:0;justify-content:center;padding:0 0 6px}
+.papel .tam span,.papel .tam b{color:#4a5560}
 
 .aviso{border-left:3px solid var(--amarillo);background:color-mix(in srgb,var(--amarillo) 10%,transparent);
   padding:11px 14px;border-radius:0 8px 8px 0;font-size:13.5px;margin-top:14px}
@@ -167,6 +185,7 @@ table.matriz td.na{color:var(--tinta-2)}
 .ayuda h4{color:var(--tinta);font-size:14.5px;margin:16px 0 5px}
 .ayuda h4:first-child{margin-top:0}
 
+@page{size:A4;margin:14mm}
 @media print{
   .barra,.ruta,.no-print{display:none !important}
   .capa{display:block;padding:0;max-width:none}
@@ -261,6 +280,9 @@ table.matriz td.na{color:var(--tinta-2)}
     <label class="campo"><span>Rango (opcional, ej. A1:F20)</span><input type="text" id="inRango" placeholder="Toda la hoja"></label>
     <label class="campo"><span>¿La primera fila son los títulos de columna?</span>
       <select id="selEncab2"><option value="si">Sí</option><option value="no">No</option></select></label>
+    <label class="campo"><span>Decimales</span>
+      <select id="selDec"><option value="">Como se ve en Excel</option><option value="1">Redondear a 1</option>
+        <option value="2">Redondear a 2</option><option value="3">Redondear a 3</option><option value="4">Redondear a 4</option></select></label>
   </div>
   <div class="dpie"><button class="btn" data-cerrar>Cancelar</button>
     <button class="btn p" id="btnHojaOk">Insertar tabla</button></div>
@@ -291,6 +313,7 @@ table.matriz td.na{color:var(--tinta-2)}
   <div class="dpie"><button class="btn p" data-cerrar>Entendido</button></div>
 </dialog>
 
+<script src="exportar.js"></script>
 <script>
 
 const SEC = {
@@ -409,6 +432,35 @@ const nl2br=s=>esc(s).replace(/\n/g,"<br>");
 const leerDataURL=f=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(r.error);r.readAsDataURL(f)});
 const peso=n=>n<1024?n+" B":n<1048576?(n/1024).toFixed(0)+" KB":(n/1048576).toFixed(1)+" MB";
 const fechaCL=i=>{ if(!i) return ""; const p=i.split("-"); return p[2]+"-"+p[1]+"-"+p[0]; };
+/* las fotos del teléfono pesan varios MB: se reducen a 1800 px, que sobra para un informe */
+async function comprimirImagen(file){
+  const src=await leerDataURL(file);
+  try{
+    const im=await Exp.util.cargarImagen(src), M=1800, k=Math.min(1,M/Math.max(im.naturalWidth,im.naturalHeight));
+    const w=Math.round(im.naturalWidth*k), h=Math.round(im.naturalHeight*k);
+    const c=document.createElement("canvas"); c.width=w; c.height=h;
+    const g=c.getContext("2d"); g.fillStyle="#fff"; g.fillRect(0,0,w,h); g.drawImage(im,0,0,w,h);
+    return {src:c.toDataURL("image/jpeg",0.85),w:w,h:h};
+  }catch(e){ return {src:src,w:0,h:0}; }
+}
+async function bloqueImagen(file){
+  const r=await comprimirImagen(file);
+  return {tipo:"imagen",src:r.src,w:r.w,h:r.h,ancho:r.w?(r.h>r.w?45:70):60,pie:""};
+}
+function anchoImg(b){ return b.ancho||(b.w&&b.h&&b.h>b.w?45:70); }
+function ctlTam(sec,id,v){ return '<div class="tam no-print"><span>Tamaño</span>'+
+  '<button class="btn mini" data-tam="-5" data-sec="'+sec+'" data-id="'+id+'" aria-label="Más chica">−</button>'+
+  '<input type="range" min="15" max="100" step="5" value="'+v+'" data-tamr data-sec="'+sec+'" data-id="'+id+'" aria-label="Tamaño de la imagen">'+
+  '<button class="btn mini" data-tam="5" data-sec="'+sec+'" data-id="'+id+'" aria-label="Más grande">+</button>'+
+  '<b data-tamv="'+id+'">'+v+'%</b></div>'; }
+function fijarAncho(sec,id,v){
+  v=Math.max(15,Math.min(100,Math.round(v/5)*5));
+  const b=(doc[sec]||[]).find(x=>x.id===id); if(!b) return; b.ancho=v;
+  document.querySelectorAll('[data-img="'+id+'"]').forEach(im=>im.style.width=v+"%");
+  document.querySelectorAll('[data-tamv="'+id+'"]').forEach(e=>e.textContent=v+"%");
+  document.querySelectorAll('[data-tamr][data-id="'+id+'"]').forEach(r=>r.value=v);
+  tocar();
+}
 function parsearPegado(txt){
   const l=txt.replace(/\r/g,"").split("\n").filter(x=>x.trim()!=="");
   if(!l.length) return null;
@@ -433,7 +485,7 @@ function moverBloque(sec,id,d){ const a=doc[sec],i=a.findIndex(b=>b.id===id),j=i
 async function ingerirArchivos(sec,files){
   for(const f of files){
     const ext=(f.name.split(".").pop()||"").toLowerCase();
-    if(f.type.startsWith("image/")) agregarBloque(sec,{tipo:"imagen",src:await leerDataURL(f),pie:""});
+    if(f.type.startsWith("image/")) agregarBloque(sec,await bloqueImagen(f));
     else if(["xlsx","xls","csv"].includes(ext)) await importarExcel(sec,f);
     else agregarBloque(sec,{tipo:"archivo",nombre:f.name,mime:f.type||ext,bytes:f.size,src:await leerDataURL(f),pie:""});
   }
@@ -457,11 +509,16 @@ async function importarExcel(sec,file){
 document.getElementById("btnHojaOk").onclick=()=>{
   const sec=excelPend.sec, wb=excelPend.wb, hoja=wb.Sheets[document.getElementById("selHoja").value];
   const rango=document.getElementById("inRango").value.trim();
-  const op={header:1,blankrows:false,defval:""}; if(rango) op.range=rango;
+  const op={header:1,blankrows:false,defval:"",raw:false}; if(rango) op.range=rango;   /* raw:false = el texto tal como se ve en Excel */
   let f=XLSX.utils.sheet_to_json(hoja,op).map(r=>r.map(c=>c==null?"":String(c)));
   f=f.filter(r=>r.some(c=>String(c).trim()!==""));
   if(!f.length){ avisar("Ese rango vino vacío."); return; }
   const w=Math.max(...f.map(r=>r.length)); f.forEach(r=>{while(r.length<w)r.push("")});
+  const dec=document.getElementById("selDec").value;
+  if(dec!==""){ const n=+dec;   /* redondea solo los números simples; el texto no se toca */
+    f=f.map(r=>r.map(c=>{ const m=/^(-?\d+)([.,])(\d+)$/.exec(String(c).trim());
+      if(!m||m[3].length<=n) return c;
+      const v=String(+parseFloat(m[1]+"."+m[3]).toFixed(n)); return m[2]===","?v.replace(".",","):v; })); }
   dlgHojas.close();
   agregarBloque(sec,{tipo:"tabla",filas:f,encab:document.getElementById("selEncab2").value==="si",pie:""});
 };
@@ -601,7 +658,8 @@ function pintarBloque(sec,b,i,n){
       '<div class="cuerpo" style="text-align:center">'+(t?graficoSVG(t):'<p class="pista">La tabla de origen ya no existe.</p>')+'</div>'+
       '<input class="pie" data-pie data-sec="'+sec+'" data-id="'+b.id+'" value="'+esc(b.pie||"")+'" placeholder="Título del gráfico (ej: Figura 1. Evolución de viscosidad)"></div>'; }
   if(b.tipo==="imagen") return '<div class="bloque" id="b-'+b.id+'">'+cab("Imagen")+
-    '<div class="cuerpo"><img class="foto" src="'+b.src+'" alt=""></div>'+
+    '<div class="cuerpo"><img class="foto" data-img="'+b.id+'" style="width:'+anchoImg(b)+'%" src="'+b.src+'" alt=""></div>'+
+    ctlTam(sec,b.id,anchoImg(b))+
     '<input class="pie" data-pie data-sec="'+sec+'" data-id="'+b.id+'" value="'+esc(b.pie||"")+'" placeholder="Pie de foto (ej: Figura 2. Película seca a 24 h)"></div>';
   if(b.tipo==="archivo"){ const ext=(b.nombre.split(".").pop()||"?").toUpperCase().slice(0,4);
     return '<div class="bloque" id="b-'+b.id+'">'+cab("Adjunto")+
@@ -612,77 +670,98 @@ function pintarBloque(sec,b,i,n){
   return "";
 }
 
+function nombreArchivo(ext){ return Exp.nombreBase(doc)+"."+ext; }
+const CFG={TIPOS:TIPOS,rotulo:rotulo,secsDe:secsDe,graficoSVG:graficoSVG};
+let editando=false;
+
 function vistaRevisar(){
   const r=req(), faltan=r.filter(c=>!campoLleno(c));
   const nom=c=>CABECERA[c]||rotulo(doc.tipo,c);
-  return '<section class="hoja"><h2>Revisar y exportar</h2>'+
-  '<p class="pista">Así va a salir el informe. Elige dónde guardarlo o imprímelo.</p>'+
-  (faltan.length?'<div class="aviso"><b>Falta completar</b>'+faltan.map(nom).join(", ")+'. Puedes exportar igual; lo que falte sale marcado en rojo.</div>'
-    :'<div class="aviso ok"><b>Informe completo</b>Según lo definido para «'+TIPOS[doc.tipo].et+'».</div>')+
-  '<div class="acciones no-print" style="margin:16px 0 22px">'+
+  return '<section class="hoja"><h2 class="no-print">Revisar y exportar</h2>'+
+  '<p class="pista no-print">Así va a salir el informe. Si ves algo que corregir, toca «Editar aquí».</p>'+
+  (faltan.length?'<div class="aviso no-print"><b>Falta completar</b>'+faltan.map(nom).join(", ")+'. Puedes exportar igual; lo que falte sale marcado en rojo.</div>'
+    :'<div class="aviso ok no-print"><b>Informe completo</b>Según lo definido para «'+TIPOS[doc.tipo].et+'».</div>')+
+  '<div class="acciones no-print" style="margin:16px 0">'+
   '<button class="btn p" id="expWord">Descargar Word</button>'+
-  '<button class="btn" id="expPDF">Imprimir o guardar PDF</button>'+
-  '<button class="btn" id="expHTML">Descargar página</button>'+
-  '<button class="btn" id="expCompartir">Compartir</button></div>'+
-  papelHTML()+'</section>';
+  '<button class="btn p" id="expPDF">Descargar PDF</button>'+
+  '<button class="btn" id="expCompartir">Compartir PDF</button>'+
+  '<button class="btn'+(editando?' p':'')+'" id="btnEditarVista">'+(editando?'Terminar de editar':'Editar aquí')+'</button></div>'+
+  (editando?'<div class="aviso no-print" style="margin:0 0 16px">Toca cualquier texto, tabla o título para corregirlo. Con la barra de cada foto cambias su tamaño. Todo se guarda solo.</div>':'')+
+  '<div id="papelWrap">'+papelHTML(editando)+'</div></section>';
 }
 
-function papelHTML(){
-  const faltante='<span class="vacio">[pendiente]</span>';
-  const celda=v=>String(v||"").trim()?esc(v):faltante;
-  const cuerpo=id=>{
-    const bl=doc[id]||[]; if(!bl.length) return faltante;
-    return bl.map(b=>{
-      if(b.tipo==="texto") return '<p style="margin:0 0 8px">'+nl2br(b.txt||"")+'</p>';
-      if(b.tipo==="tabla"){ const f=b.filas||[];
-        return '<figure><table class="datos" align="center"><tbody>'+f.map((fila,ri)=>'<tr>'+fila.map(c=>
-          (b.encab&&ri===0)?'<th>'+esc(c)+'</th>':'<td>'+esc(c)+'</td>').join("")+'</tr>').join("")+'</tbody></table>'+
-          (b.pie?'<figcaption>'+esc(b.pie)+'</figcaption>':"")+'</figure>'; }
-      if(b.tipo==="grafico"){ const t=(doc[id]||[]).find(x=>x.id===b.ref);
-        return t?'<figure>'+graficoSVG(t)+(b.pie?'<figcaption>'+esc(b.pie)+'</figcaption>':"")+'</figure>':""; }
-      if(b.tipo==="imagen") return '<figure><img src="'+b.src+'" style="max-width:100%;max-height:330px">'+
-        (b.pie?'<figcaption>'+esc(b.pie)+'</figcaption>':"")+'</figure>';
-      if(b.tipo==="archivo") return '<p class="adjlinea" align="center">Adjunto: <b>'+esc(b.nombre)+'</b> ('+peso(b.bytes||0)+')'+
-        (b.pie?" — "+esc(b.pie):"")+'</p>';
-      return "";
-    }).join("");
-  };
-  const estTxt={cumplido:"Se cumplió",parcial:"Se cumplió en parte",no:"No se cumplió"};
-  const filas=secsDe(doc.tipo).map(s=> s==="cumplimiento"
-    ? '<tr><td class="et">Cumplimiento</td><td>'+(doc.estadoSemana?esc(estTxt[doc.estadoSemana]):faltante)+'</td></tr>'
-    : '<tr><td class="et">'+esc(rotulo(doc.tipo,s))+'</td><td>'+cuerpo(s)+'</td></tr>').join("");
-  return '<div class="papel" id="papel"><div class="enc"><h1>INFORME</h1>'+
-    '<p>'+esc(TIPOS[doc.tipo].et)+'</p></div>'+
-    '<table class="doc">'+
-    '<tr><td class="et">'+(doc.tipo==="visita"?"Asunto":"Título Proyecto")+'</td><td>'+celda(doc.titulo)+
-      (doc.codigo?' <span style="color:#4a5560">('+esc(doc.codigo)+')</span>':"")+'</td></tr>'+
-    '<tr><td class="et">Cliente</td><td>'+celda(doc.cliente)+'</td></tr>'+
-    (doc.tipo==="visita"?'<tr><td class="et">Lugar</td><td>'+celda(doc.lugar)+'</td></tr>':"")+
-    '<tr><td class="et">Responsable</td><td>'+celda(doc.responsable)+'</td></tr>'+
-    '<tr><td class="et">Fecha</td><td>'+esc(fechaCL(doc.fecha))+'</td></tr>'+
-    filas+'</table></div>';
+function papelHTML(edit){
+  const ir=Exp.construir(doc,CFG), ce=edit?' contenteditable="true"':'';
+  const pend='<span class="vacio">[pendiente]</span>';
+  /* las líneas de un mismo bloque de texto se muestran juntas, para editarlas como un solo texto */
+  function agrupar(items){
+    const out=[];
+    items.forEach(it=>{
+      const u=out[out.length-1];
+      if(it.t==="p"&&it.bid){ if(u&&u.t==="p"&&u.bid===it.bid&&u.lineas) u.lineas.push(it.txt); else out.push({t:"p",bid:it.bid,sec:it.sec,lineas:[it.txt]}); }
+      else out.push(it);
+    });
+    return out;
+  }
+  const cap=it=>(it.bid&&(it.pie||edit))
+    ?'<figcaption data-w="pie:'+it.sec+':'+it.bid+'"'+ce+' data-ph="Escribir título o pie…">'+esc(it.pie||"")+'</figcaption>':"";
+  function itemHTML(it){
+    if(it.t==="p"){
+      if(it.lineas) return '<div class="tx" data-w="txt:'+it.sec+':'+it.bid+'"'+ce+'>'+esc(it.lineas.join("\n"))+'</div>';
+      if(it.key&&it.pend) return edit?'<div class="tx"><span class="cmp" data-w="campo:'+it.key+'" contenteditable="true" data-ph="[pendiente]"></span></div>':'<div class="tx">'+pend+'</div>';
+      if(it.key) return '<div class="tx"><span data-w="campo:'+it.key+'"'+ce+'>'+esc(it.val)+'</span><span class="extra">'+esc(it.extra||"")+'</span></div>';
+      return '<div class="tx">'+(it.pend?pend:esc(it.txt))+'</div>';
+    }
+    if(it.t==="tabla"){
+      const nc=Math.max(1,...it.filas.map(f=>f.length));   /* en pantalla chica la tabla se desplaza de lado, no se aplasta */
+      return '<figure><div class="tw"><table class="datos" style="min-width:'+Math.min(nc*72,960)+'px"><tbody>'+it.filas.map((f,ri)=>'<tr>'+f.map((c,ci)=>{
+        const t=(it.encab&&ri===0)?"th":"td";
+        return '<'+t+(it.bid?' data-w="cel:'+it.sec+':'+it.bid+':'+ri+':'+ci+'"':'')+ce+'>'+esc(c)+'</'+t+'>';
+      }).join("")+'</tr>').join("")+'</tbody></table></div>'+cap(it)+'</figure>';
+    }
+    if(it.t==="graf") return '<figure>'+graficoSVG(it.tabla)+cap(it)+'</figure>';
+    if(it.t==="img"){
+      const a=it.ancho||(it.w&&it.h&&it.h>it.w?45:70);
+      return '<figure>'+(edit?ctlTam(it.sec,it.bid,a):"")+'<img data-img="'+it.bid+'" style="width:'+a+'%" src="'+it.src+'" alt="">'+cap(it)+'</figure>';
+    }
+    if(it.t==="adj") return '<p class="adjlinea">'+esc(it.txt)+'</p>';
+    return "";
+  }
+  const filas=ir.filas.map(f=>{
+    const cont=agrupar(f.items).map(itemHTML).join("");
+    return f.modo==="inline"
+      ? '<tr><td class="et">'+esc(f.label)+'</td><td>'+cont+'</td></tr>'
+      : '<tr><td colspan="2" class="et tit">'+esc(f.label)+'</td></tr><tr><td colspan="2">'+cont+'</td></tr>';
+  }).join("");
+  return '<div class="papel'+(edit?' edit':'')+'" id="papel"><div class="enc"><h1>'+esc(ir.titulo)+'</h1><p>'+esc(ir.sub)+'</p></div>'+
+    '<table class="doc"><colgroup><col class="c1"><col></colgroup><tbody>'+filas+'</tbody></table></div>';
 }
-function nombreArchivo(ext){
-  const t=(doc.titulo||"informe").replace(/[^\wáéíóúñÁÉÍÓÚÑ \-]/g,"").trim().replace(/\s+/g,"_").slice(0,50);
-  return "Informe_"+t+"_"+doc.fecha+"."+ext;
+
+/* ---- Word y PDF se arman dentro de la aplicación: no dependen del navegador ni de la impresora ---- */
+const LIBS={docx:["docx.min.js"],pdf:["jspdf.umd.min.js","jspdf.plugin.autotable.min.js"]};
+function cargarScript(u){ return new Promise((res,rej)=>{ const s=document.createElement("script"); s.src=u;
+  s.onload=()=>res(); s.onerror=()=>rej(new Error("No se pudo cargar "+u)); document.head.appendChild(s); }); }
+async function cargarLibs(f){
+  if(f==="docx"&&window.docx) return;
+  if(f==="pdf"&&window.jspdf&&window.jspdf.jsPDF&&window.jspdf.jsPDF.API.autoTable) return;
+  for(const u of LIBS[f]) await cargarScript(u);
 }
-function docCompleto(){
-  const css='body{font-family:Calibri,Arial,sans-serif;font-size:11pt;color:#15191f}'+
-   'table.doc{width:100%;border-collapse:collapse;font-size:10.5pt}'+
-   'table.doc td{border:1px solid #666;padding:5pt 7pt;vertical-align:top}'+
-   'table.doc td.et{width:110pt;background:#eef1f5;font-weight:bold}'+
-   'figure{margin:8pt 0;text-align:center}'+
-   'table.datos{border-collapse:collapse;font-size:9pt;margin:0 auto}'+
-   'table.datos td,table.datos th{border:1px solid #666;padding:2pt 5pt}'+
-   'table.datos th{background:#eef1f5;font-weight:bold;text-align:left}'+
-   'figcaption{font-size:8.5pt;color:#4a5560;text-align:center}'+
-   'img{display:block;margin:0 auto}'+
-   '.enc{border-bottom:2px solid #15191f;padding-bottom:6pt;margin-bottom:12pt;text-align:center}'+
-   '.enc h1{font-family:Georgia,serif;font-size:24pt;font-weight:normal;letter-spacing:6pt;margin:0}'+
-   '.enc p{margin:2pt 0 0;font-size:8.5pt;letter-spacing:2pt;color:#4a5560;text-transform:uppercase}'+
-   '.vacio{color:#b3261e;font-style:italic}.adjlinea{text-align:center;font-size:9pt}';
-  return '<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>'+esc(doc.titulo||"Informe técnico")+
-    '</title><style>'+css+'</style></head><body>'+papelHTML().replace('class="papel" id="papel"','')+'</body></html>';
+async function generar(f){
+  const ir=Exp.construir(doc,CFG); await Exp.preparar(ir,CFG); await cargarLibs(f);
+  return f==="docx"?Exp.aDocx(ir):Exp.aPDF(ir,{base:""});
+}
+async function descargar(f){
+  avisar(f==="pdf"?"Generando PDF…":"Generando Word…");
+  try{ bajar(await generar(f),nombreArchivo(f)); }
+  catch(e){ console.error(e); avisar("No se pudo generar el archivo. "+e.message); }
+}
+async function compartirPDF(){
+  avisar("Preparando PDF…");
+  try{
+    const blob=await generar("pdf"), file=new File([blob],nombreArchivo("pdf"),{type:"application/pdf"});
+    if(navigator.canShare&&navigator.canShare({files:[file]})) await navigator.share({files:[file],title:doc.titulo||"Informe"});
+    else { bajar(blob,file.name); avisar("Este navegador no permite compartir. Se descargó el PDF."); }
+  }catch(e){ if(e&&e.name==="AbortError") return; console.error(e); avisar("No se pudo compartir. "+e.message); }
 }
 function bajar(blob,nombre){
   const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=nombre;
@@ -727,25 +806,46 @@ function conectar(){
 
   const w=document.getElementById("expWord");
   if(w){
-    w.onclick=()=>bajar(new Blob(["\ufeff"+docCompleto()],{type:"application/msword"}),nombreArchivo("doc"));
-    document.getElementById("expPDF").onclick=()=>print();
-    document.getElementById("expHTML").onclick=()=>bajar(new Blob([docCompleto()],{type:"text/html"}),nombreArchivo("html"));
-    document.getElementById("expCompartir").onclick=async()=>{
-      try{
-        const f=new File([docCompleto()],nombreArchivo("doc"),{type:"application/msword"});
-        if(navigator.canShare&&navigator.canShare({files:[f]})) await navigator.share({files:[f],title:doc.titulo||"Informe técnico"});
-        else avisar("Este navegador no permite compartir. Usa «Descargar Word».");
-      }catch(e){}
-    };
+    w.onclick=()=>descargar("docx");
+    document.getElementById("expPDF").onclick=()=>descargar("pdf");
+    document.getElementById("expCompartir").onclick=compartirPDF;
+    document.getElementById("btnEditarVista").onclick=()=>{ const y=scrollY; editando=!editando; render(); scrollTo(0,y); };
   }
 }
 
+/* ---- tamaño de fotos y edición directa en la vista final ---- */
+document.addEventListener("input",ev=>{
+  const r=ev.target.closest&&ev.target.closest("[data-tamr]");
+  if(r){ fijarAncho(r.dataset.sec,r.dataset.id,+r.value); return; }
+  const w=ev.target.closest&&ev.target.closest("[data-w]");
+  if(!w||!w.isContentEditable) return;
+  const p=w.dataset.w.split(":"), k=p[0], t=w.innerText.replace(/\u00a0/g," ");
+  if(k==="campo") doc[p[1]]=t.replace(/\s*\n\s*/g," ").trim();
+  else{
+    const b=(doc[p[1]]||[]).find(x=>x.id===p[2]); if(!b) return;
+    if(k==="txt") b.txt=t.replace(/\s+$/,"");
+    else if(k==="pie") b.pie=t.replace(/\s*\n\s*/g," ").trim();
+    else if(k==="cel"&&b.filas&&b.filas[+p[3]]) b.filas[+p[3]][+p[4]]=t.replace(/\n+$/,"").trim();
+  }
+  tocar();
+});
+document.addEventListener("click",ev=>{
+  const b=ev.target.closest&&ev.target.closest("[data-tam]"); if(!b) return;
+  const blk=(doc[b.dataset.sec]||[]).find(x=>x.id===b.dataset.id); if(!blk) return;
+  fijarAncho(b.dataset.sec,b.dataset.id,anchoImg(blk)+(+b.dataset.tam));
+});
+
 addEventListener("paste",async ev=>{
-  if(seccionActiva==="portada"||seccionActiva==="revisar"||seccionActiva==="cumplimiento") return;
+  if(seccionActiva==="revisar"){
+    if(ev.target.isContentEditable){ ev.preventDefault();
+      document.execCommand("insertText",false,(ev.clipboardData||window.clipboardData).getData("text/plain")); }
+    return;
+  }
+  if(seccionActiva==="portada"||seccionActiva==="cumplimiento") return;
   const t=ev.target.tagName;
   if(t==="TEXTAREA"||t==="INPUT"||ev.target.isContentEditable) return;
   const it=[].slice.call(ev.clipboardData?ev.clipboardData.items:[]), img=it.find(i=>i.type.indexOf("image/")===0);
-  if(img){ ev.preventDefault(); agregarBloque(seccionActiva,{tipo:"imagen",src:await leerDataURL(img.getAsFile()),pie:""}); return; }
+  if(img){ ev.preventDefault(); agregarBloque(seccionActiva,await bloqueImagen(img.getAsFile())); return; }
   const txt=ev.clipboardData?ev.clipboardData.getData("text/plain"):"";
   if(txt.indexOf("\t")>=0||/\n/.test(txt.trim())){ ev.preventDefault();
     const f=parsearPegado(txt); if(f) agregarBloque(seccionActiva,{tipo:"tabla",filas:f,encab:true,pie:""}); }
