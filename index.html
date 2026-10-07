@@ -7,6 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="No importa">
 <meta name="theme-color" content="#0B57A4">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -866,13 +868,9 @@ document.getElementById("btnAyuda").onclick=()=>{
   dlgAyuda.showModal();
 };
 
-try{
-  const man={name:"No importa",short_name:"No importa",display:"standalone",
-    start_url:".",background_color:"#eef1f5",theme_color:"#0B57A4"};
-  const l=document.createElement("link"); l.rel="manifest";
-  l.href=URL.createObjectURL(new Blob([JSON.stringify(man)],{type:"application/manifest+json"}));
-  document.head.appendChild(l);
-}catch(e){}
+if("serviceWorker" in navigator && location.protocol.indexOf("http")===0){
+  addEventListener("load",()=>{ navigator.serviceWorker.register("sw.js").catch(()=>{}); });
+}
 
 (async()=>{
   await abrirDB();
