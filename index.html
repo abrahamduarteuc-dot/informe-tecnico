@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>No importa</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="No importa">
+<meta name="theme-color" content="#0B57A4">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --azul:#0B57A4; --azul-osc:#07386b; --amarillo:#E8A80C; --verde:#3f7a2e;
+  --tinta:#15191f; --tinta-2:#4a5560; --linea:#d8dee6;
+  --fondo:#eef1f5; --panel:#ffffff; --panel-2:#f7f9fb; --papel:#ffffff;
+  --alerta:#b3261e;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --tinta:#e6ebf1; --tinta-2:#9aa6b3; --linea:#2c3440;
+    --fondo:#11151a; --panel:#1a1f27; --panel-2:#151a21; --azul:#4d9bea; --verde:#56a83f;
+  }
+}
+:root[data-theme="dark"]{
+  --tinta:#e6ebf1; --tinta-2:#9aa6b3; --linea:#2c3440;
+  --fondo:#11151a; --panel:#1a1f27; --panel-2:#151a21; --azul:#4d9bea; --verde:#56a83f;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--fondo);color:var(--tinta);
+  font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.5}
+img{max-width:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+
+.barra{position:sticky;top:env(safe-area-inset-top,0px);z-index:40;background:var(--panel);
+  border-bottom:1px solid var(--linea);padding:9px 14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.barra .marca{font-family:Fraunces,Georgia,serif;font-size:19px;font-weight:600;letter-spacing:.01em}
+.barra .sep{flex:1}
+.estado{font-size:12px;color:var(--tinta-2);font-family:"IBM Plex Mono",monospace}
+.btn{border:1px solid var(--linea);background:var(--panel);border-radius:8px;padding:9px 14px;
+  cursor:pointer;font-weight:500;font-size:14px;min-height:40px;display:inline-flex;
+  align-items:center;gap:6px;justify-content:center;text-decoration:none;color:inherit}
+.btn:hover{border-color:var(--azul);color:var(--azul)}
+.btn:focus-visible{outline:2px solid var(--azul);outline-offset:2px}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn.p{background:var(--azul);border-color:var(--azul);color:#fff}
+.btn.p:hover{background:var(--azul-osc);border-color:var(--azul-osc);color:#fff}
+.btn.mini{padding:6px 11px;font-size:13px;min-height:36px}
+.btn.rojo{border-color:#e8b4b0;color:var(--alerta)}
+.btn.rojo:hover{background:var(--alerta);border-color:var(--alerta);color:#fff}
+
+.capa{display:grid;grid-template-columns:250px minmax(0,1fr);gap:22px;max-width:1180px;margin:0 auto;padding:20px 14px 90px}
+@media(max-width:900px){.capa{grid-template-columns:1fr;gap:12px;padding:12px 10px 80px}}
+.ruta{position:sticky;top:calc(60px + env(safe-area-inset-top,0px));align-self:start}
+@media(max-width:900px){.ruta{position:static;overflow-x:auto;white-space:nowrap;padding-bottom:4px}}
+.ruta ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+@media(max-width:900px){.ruta ol{flex-direction:row;gap:6px}}
+.ruta button{display:flex;gap:9px;align-items:center;width:100%;text-align:left;background:none;border:0;
+  border-left:3px solid transparent;padding:10px;cursor:pointer;border-radius:0 7px 7px 0;color:var(--tinta-2)}
+@media(max-width:900px){.ruta button{width:auto;border-left:0;border-bottom:3px solid transparent;
+  border-radius:8px 8px 0 0;background:var(--panel)}}
+.ruta button[aria-current="true"]{border-color:var(--azul);background:var(--panel);color:var(--tinta);font-weight:600}
+.ruta .n{font-family:"IBM Plex Mono",monospace;font-size:12px;width:18px;flex:none;color:var(--tinta-2)}
+.ruta .ok{color:var(--verde);font-weight:700}
+.ruta .falta{color:var(--amarillo);font-weight:700}
+.avance{margin:14px 0 0;height:5px;background:var(--linea);border-radius:3px;overflow:hidden}
+.avance i{display:block;height:100%;background:var(--verde);width:0;transition:width .25s}
+.avance-txt{font-size:12px;color:var(--tinta-2);margin-top:6px;font-family:"IBM Plex Mono",monospace}
+
+.hoja{background:var(--panel);border:1px solid var(--linea);border-radius:12px;padding:20px}
+@media(max-width:900px){.hoja{padding:15px;border-radius:10px}}
+.hoja h2{margin:0 0 4px;font-size:21px;font-weight:600;letter-spacing:-.2px}
+.pista{margin:0 0 16px;color:var(--tinta-2);font-size:14px;max-width:64ch}
+label.campo{display:block;margin-bottom:14px}
+label.campo span{display:block;font-size:13.5px;font-weight:500;margin-bottom:5px}
+label.campo span em{font-style:normal;color:var(--alerta)}
+input[type=text],input[type=date],select,textarea{width:100%;padding:10px 11px;border:1px solid var(--linea);
+  border-radius:8px;background:var(--panel-2)}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--azul);outline-offset:-1px;border-color:var(--azul)}
+textarea{min-height:120px;resize:vertical;line-height:1.55}
+.dupla{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+@media(max-width:620px){.dupla{grid-template-columns:1fr}}
+
+.zona{border:1.5px dashed var(--linea);border-radius:10px;padding:14px;margin-top:14px;background:var(--panel-2)}
+.zona.encima{border-color:var(--azul);background:color-mix(in srgb,var(--azul) 10%,var(--panel-2))}
+.zona p{margin:0;font-size:13.5px;color:var(--tinta-2);text-align:center}
+.acciones{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.bloque{border:1px solid var(--linea);border-radius:10px;margin-top:14px;background:var(--panel-2)}
+.bloque > header{display:flex;gap:6px;align-items:center;padding:8px 10px;border-bottom:1px solid var(--linea);flex-wrap:wrap}
+.bloque > header b{font-size:12px;font-weight:600;color:var(--tinta-2);font-family:"IBM Plex Mono",monospace}
+.bloque > header .sep{flex:1}
+.bloque .cuerpo{padding:10px;overflow-x:auto}
+.bloque input.pie{width:100%;border:0;border-top:1px dashed var(--linea);background:none;padding:9px 10px;
+  font-size:13px;color:var(--tinta-2)}
+table.datos{border-collapse:collapse;font-family:"IBM Plex Mono",monospace;font-size:12.5px;min-width:100%}
+table.datos td,table.datos th{border:1px solid var(--linea);padding:4px 7px;white-space:nowrap}
+table.datos th{background:color-mix(in srgb,var(--azul) 12%,transparent);font-weight:600;text-align:left}
+table.datos td[contenteditable]:focus,table.datos th[contenteditable]:focus{outline:2px solid var(--azul);outline-offset:-2px;background:var(--panel)}
+.bloque img.foto{max-height:300px;border-radius:6px;display:block;margin:0 auto}
+.adj{display:flex;gap:10px;align-items:center;font-size:14px;flex-wrap:wrap}
+.adj .ico{width:34px;height:34px;flex:none;border-radius:7px;background:var(--azul);color:#fff;
+  display:grid;place-items:center;font-size:10px;font-weight:700;font-family:"IBM Plex Mono",monospace}
+.adj .meta{font-size:12px;color:var(--tinta-2);font-family:"IBM Plex Mono",monospace}
+.opciones{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.opciones label{border:1px solid var(--linea);border-radius:9px;padding:10px 14px;cursor:pointer;
+  background:var(--panel-2);font-size:14px;display:flex;gap:8px;align-items:center}
+.opciones label:has(input:checked){border-color:var(--azul);background:color-mix(in srgb,var(--azul) 10%,transparent);font-weight:600}
+
+.papel{background:var(--papel);color:#15191f;max-width:820px;margin:0 auto;padding:38px 44px;
+  border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,.18)}
+@media(max-width:620px){.papel{padding:18px 14px}}
+.papel .enc{text-align:center;border-bottom:2px solid #15191f;padding-bottom:10px;margin-bottom:18px}
+.papel .enc h1{font-family:Fraunces,Georgia,serif;font-size:34px;font-weight:600;letter-spacing:.14em;
+  margin:0;line-height:1.1}
+.papel .enc p{margin:4px 0 0;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#4a5560}
+.papel table.doc{width:100%;border-collapse:collapse;font-size:13px}
+.papel table.doc td{border:1px solid #9aa6b3;padding:7px 9px;vertical-align:top}
+.papel table.doc td.et{width:140px;background:#eef1f5;font-weight:600}
+.papel .etapa{font-size:12px;font-weight:600}
+.papel .etapa span{margin-right:12px;white-space:nowrap}
+.papel figure{margin:12px 0;text-align:center}
+.papel figure table.datos{margin:0 auto;display:inline-table;min-width:0;font-size:11px;text-align:left}
+.papel table.datos td,.papel table.datos th{border:1px solid #9aa6b3;white-space:normal}
+.papel table.datos th{background:#eef1f5}
+.papel figure img{display:block;margin:0 auto;max-height:320px}
+.papel figcaption{font-size:11px;color:#4a5560;margin-top:4px;text-align:center}
+.papel .vacio{color:#b3261e;font-style:italic}
+.papel .adjlinea{text-align:center;font-size:12px;margin:6px 0}
+
+.aviso{border-left:3px solid var(--amarillo);background:color-mix(in srgb,var(--amarillo) 10%,transparent);
+  padding:11px 14px;border-radius:0 8px 8px 0;font-size:13.5px;margin-top:14px}
+.aviso.ok{border-color:var(--verde);background:color-mix(in srgb,var(--verde) 10%,transparent)}
+.aviso b{display:block;margin-bottom:3px}
+
+dialog{border:1px solid var(--linea);border-radius:14px;background:var(--panel);color:var(--tinta);
+  max-width:620px;width:calc(100% - 24px);padding:0;max-height:88vh}
+dialog::backdrop{background:rgba(0,0,0,.5)}
+dialog .dcab{display:flex;align-items:center;gap:10px;padding:16px 18px 0}
+dialog h3{margin:0;font-size:18px;flex:1}
+dialog .dcuerpo{padding:12px 18px;overflow:auto;max-height:62vh}
+dialog .dpie{padding:12px 18px 16px;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;
+  border-top:1px solid var(--linea)}
+.lista-borr{list-style:none;margin:0;padding:0}
+.lista-borr li{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--linea);flex-wrap:wrap}
+.lista-borr li .t{flex:1;min-width:140px}
+.lista-borr li .t b{display:block;font-size:14px;font-weight:600}
+.lista-borr li .t span{font-size:12px;color:var(--tinta-2);font-family:"IBM Plex Mono",monospace}
+table.matriz{border-collapse:collapse;width:100%;font-size:13px}
+table.matriz th,table.matriz td{border:1px solid var(--linea);padding:7px 6px;text-align:center}
+table.matriz th:first-child,table.matriz td:first-child{text-align:left;font-weight:500}
+table.matriz thead th{font-size:11.5px;line-height:1.25;vertical-align:bottom;background:var(--panel-2)}
+table.matriz input{width:20px;height:20px;accent-color:var(--azul)}
+table.matriz td.na{color:var(--tinta-2)}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));
+  background:var(--tinta);color:var(--fondo);padding:11px 18px;border-radius:999px;font-size:14px;z-index:90;
+  box-shadow:0 4px 18px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:opacity .2s}
+#toast.ver{opacity:1}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.ayuda{font-size:13.5px;color:var(--tinta-2);line-height:1.6}
+.ayuda h4{color:var(--tinta);font-size:14.5px;margin:16px 0 5px}
+.ayuda h4:first-child{margin-top:0}
+
+@media print{
+  .barra,.ruta,.no-print{display:none !important}
+  .capa{display:block;padding:0;max-width:none}
+  .hoja{border:0;padding:0;background:#fff}
+  .papel{box-shadow:none;max-width:none;padding:0;border-radius:0}
+  .papel figure{page-break-inside:avoid}
+  body{background:#fff}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none !important}}
+</style>
+</head>
+<body>
+
+<header class="barra">
+  <span class="marca">No importa</span>
+  <select id="selTipo" aria-label="Tipo de informe" style="width:auto;min-width:200px;flex:1;max-width:280px"></select>
+  <span class="sep"></span>
+  <span class="estado" id="estado">Cargando…</span>
+  <button class="btn mini" id="btnBorradores">Borradores</button>
+  <button class="btn mini" id="btnNuevo">Nuevo</button>
+  <button class="btn mini" id="btnAyuda" title="Ayuda">?</button>
+  <button class="btn mini" id="btnTema" title="Claro / oscuro">◐</button>
+</header>
+
+<div class="capa">
+  <nav class="ruta" aria-label="Secciones"><ol id="navPasos"></ol>
+    <div class="avance no-print"><i id="avanceBarra"></i></div>
+    <div class="avance-txt no-print" id="avanceTxt"></div>
+  </nav>
+  <main id="panel"></main>
+</div>
+
+<div id="toast" role="status"></div>
+
+<input type="file" id="inFoto" accept="image/*" capture="environment" class="sr">
+<input type="file" id="inImg" accept="image/*" multiple class="sr">
+<input type="file" id="inExcel" accept=".xlsx,.xls,.csv" class="sr">
+<input type="file" id="inArch" multiple class="sr">
+<input type="file" id="inJSON" accept=".json,application/json" class="sr">
+
+<dialog id="dlgPregunta">
+  <div class="dcab"><h3 id="pregTitulo">¿Seguro?</h3></div>
+  <div class="dcuerpo"><p id="pregTexto" style="margin:0"></p></div>
+  <div class="dpie">
+    <button class="btn" id="pregNo">Cancelar</button>
+    <button class="btn p" id="pregSi">Confirmar</button>
+  </div>
+</dialog>
+
+<dialog id="dlgBorradores">
+  <div class="dcab"><h3>Borradores</h3><button class="btn mini" data-cerrar>Cerrar</button></div>
+  <div class="dcuerpo">
+    <p class="pista">Cada informe que empiezas queda aquí, guardado dentro de este navegador.
+    Se guarda solo, mientras escribes. Para pasarlo a otro equipo usa «Guardar copia».</p>
+    <ul class="lista-borr" id="listaBorradores"></ul>
+  </div>
+  <div class="dpie">
+    <button class="btn mini" id="btnImportar">Abrir copia .json</button>
+    <button class="btn mini" id="btnExportarJSON">Guardar copia del informe actual</button>
+  </div>
+</dialog>
+
+<dialog id="dlgObligatorios">
+  <div class="dcab"><h3>Campos obligatorios por tipo</h3><button class="btn mini" data-cerrar>Cerrar</button></div>
+  <div class="dcuerpo">
+    <p class="pista">Marca lo que no se puede dejar en blanco. El guion significa que esa sección
+    no existe en ese tipo de informe.</p>
+    <div style="overflow-x:auto"><table class="matriz" id="matriz"></table></div>
+  </div>
+  <div class="dpie">
+    <button class="btn mini" id="btnObligDefecto">Volver a lo propuesto</button>
+    <button class="btn p mini" id="btnObligGuardar">Guardar</button>
+  </div>
+</dialog>
+
+<dialog id="dlgTabla">
+  <div class="dcab"><h3>Pegar tabla desde Excel</h3><button class="btn mini" data-cerrar>Cerrar</button></div>
+  <div class="dcuerpo">
+    <p class="pista">Copia el rango en Excel y pégalo en el recuadro. Se respetan filas y columnas.</p>
+    <textarea id="pegaTabla" style="min-height:140px;font-family:'IBM Plex Mono',monospace;font-size:12.5px" placeholder="Pega aquí"></textarea>
+    <label class="campo" style="margin-top:10px"><span>¿La primera fila son los títulos de columna?</span>
+      <select id="selEncab"><option value="si">Sí</option><option value="no">No</option></select></label>
+  </div>
+  <div class="dpie"><button class="btn" data-cerrar>Cancelar</button>
+    <button class="btn p" id="btnTablaOk">Insertar tabla</button></div>
+</dialog>
+
+<dialog id="dlgHojas">
+  <div class="dcab"><h3>Elegir hoja y rango</h3><button class="btn mini" data-cerrar>Cerrar</button></div>
+  <div class="dcuerpo">
+    <label class="campo"><span>Hoja</span><select id="selHoja"></select></label>
+    <label class="campo"><span>Rango (opcional, ej. A1:F20)</span><input type="text" id="inRango" placeholder="Toda la hoja"></label>
+    <label class="campo"><span>¿La primera fila son los títulos de columna?</span>
+      <select id="selEncab2"><option value="si">Sí</option><option value="no">No</option></select></label>
+  </div>
+  <div class="dpie"><button class="btn" data-cerrar>Cancelar</button>
+    <button class="btn p" id="btnHojaOk">Insertar tabla</button></div>
+</dialog>
+
+<dialog id="dlgPlantillas">
+  <div class="dcab"><h3>Insertar tabla</h3><button class="btn mini" data-cerrar>Cerrar</button></div>
+  <div class="dcuerpo">
+    <div id="listaPlantillas"></div>
+    <h4 style="margin:22px 0 4px;font-size:15px">O una tabla en blanco</h4>
+    <p class="pista">Elige el tamaño y escribes directo en las celdas.</p>
+    <div class="dupla">
+      <label class="campo"><span>Filas de datos</span><input type="number" id="nFilas" value="5" min="1" max="60"></label>
+      <label class="campo"><span>Columnas</span><input type="number" id="nCols" value="3" min="1" max="12"></label>
+    </div>
+    <label class="campo"><span>Primera fila como títulos de columna</span>
+      <select id="selEncab3"><option value="si">Sí</option><option value="no">No</option></select></label>
+  </div>
+  <div class="dpie"><button class="btn" data-cerrar>Cancelar</button>
+    <button class="btn p" id="btnBlancoOk">Insertar tabla</button></div>
+</dialog>
+
+
+
+<dialog id="dlgAyuda">
+  <div class="dcab"><h3>Cómo funciona</h3><button class="btn mini" data-cerrar>Cerrar</button></div>
+  <div class="dcuerpo ayuda" id="textoAyuda"></div>
+  <div class="dpie"><button class="btn p" data-cerrar>Entendido</button></div>
+</dialog>
+
+<script>
+
+const SEC = {
+  antecedentes:{t:"Antecedentes", pista:"De dónde viene el trabajo: solicitud del cliente, reclamo, ensayo previo. Dos líneas bastan."},
+  objetivo:{t:"Objetivo", pista:"En concreto, qué se busca lograr."},
+  desarrollo:{t:"Desarrollo", pista:"Cambios principales que permitieron alcanzar el objetivo y metodología de trabajo. Aquí van las tablas, fotos y gráficos."},
+  conclusiones:{t:"Conclusiones", pista:"Qué se concluye y qué queda pendiente. Sin datos nuevos."},
+  anexos:{t:"Anexos", pista:"Planillas, fichas técnicas, certificados, correos."},
+  motivos:{t:"Motivos", pista:"Si el objetivo no se cumplió del todo, explica por qué."},
+  resumen:{t:"Trabajo realizado", pista:"Qué se hizo y qué días. Ej: fabricación del lote el martes, ensayos de estabilidad el jueves."},
+  asistentes:{t:"Participantes", pista:"Quiénes estuvieron, de cada parte, con sus cargos."},
+  acuerdos:{t:"Acuerdos y compromisos", pista:"Qué quedó comprometido, quién lo hace y para cuándo."}
+};
+const TIPOS = {
+  avance:{et:"Informe de Avance", secs:["antecedentes","objetivo","desarrollo","conclusiones","anexos"]},
+  final:{et:"Informe Final", secs:["antecedentes","objetivo","desarrollo","conclusiones","anexos"]},
+  supervision:{et:"Informe Supervisión Planta", secs:["antecedentes","objetivo","desarrollo","conclusiones","anexos"]},
+  visita:{et:"Informe de Visita a Cliente", secs:["asistentes","objetivo","desarrollo","acuerdos","anexos"],
+    rot:{objetivo:"Motivo de la visita", desarrollo:"Temas tratados y observaciones"}},
+  semanal:{et:"Entregable Semanal", secs:["objetivo","cumplimiento","motivos","resumen","conclusiones","anexos"],
+    rot:{objetivo:"Objetivo de la semana", conclusiones:"Conclusión breve"}}
+};
+const OBLIG_DEF = {
+  avance:["titulo","cliente","responsable","antecedentes","objetivo","desarrollo","conclusiones"],
+  final:["titulo","cliente","responsable","antecedentes","objetivo","desarrollo","conclusiones","anexos"],
+  supervision:["titulo","cliente","responsable","objetivo","desarrollo","conclusiones"],
+  visita:["titulo","cliente","responsable","asistentes","objetivo","desarrollo","acuerdos"],
+  semanal:["titulo","responsable","objetivo","cumplimiento","resumen"]
+};
+const CABECERA = {titulo:"Título del proyecto", cliente:"Cliente", responsable:"Responsable"};
+const TODAS_SECS = [...new Set(Object.values(TIPOS).flatMap(t=>t.secs))];
+const BLOQUES_SECS = TODAS_SECS.filter(s=>s!=="cumplimiento");
+
+const PLANTILLAS = [
+ {n:"Parámetros del diseño", d:"Comparación del producto nuevo contra el de referencia.",
+  f:[["N°","Parámetro","Muestra nueva","Referencia"],
+     ["1","Código granel","",""],["2","Costo materia prima","",""],["3","Variación de costo","",""],
+     ["4","Precio de venta","",""],["5","Margen requerido (%)","",""],["6","Margen obtenido (%)","",""],
+     ["7","PVC","",""],["8","CPVC","",""],["9","PVC reducido","",""],["10","Sólidos (%)","",""]]},
+ {n:"Ficha de fabricación", d:"Formulación, en porcentaje.",
+  f:[["N°","Código","Materia prima","% Nueva","% Referencia"],
+     ["1","","","",""],["2","","","",""],["3","","","",""],["4","","","",""],["5","","","",""],
+     ["6","","","",""],["7","","","",""],["8","","","",""],["9","","","",""],["10","","","",""],
+     ["","","TOTAL","100,0000","100,0000"]]},
+ {n:"Parámetros de calidad", d:"Ensayos de control sobre la muestra en estudio.",
+  f:[["N°","Ensayo","Rango de aprobación","Resultado"],
+     ["1","Molienda (Hegman)","",""],["2","Densidad 20 °C (g/mL)","",""],
+     ["3","Viscosidad copa Ford #4 20 °C","",""],["4","pH 20 °C","",""],
+     ["5","Sólidos (%)","",""],["6","Poder cubriente CR 98% Erichsen","",""],
+     ["7","Índice de blancura (WI)","",""],["8","Índice de amarillamiento (YI)","",""],
+     ["9","Blocking seco","",""],["10","Test de espuma","",""],
+     ["11","Brillo 60°","",""],["12","Adherencia cross cut","",""]]},
+ {n:"Estabilidad acelerada", d:"Comparación inicial contra envejecimiento en estufa.",
+  f:[["N°","Ensayo","Variación esperada","Inicial (hora 0)","Final (14 días, 50 °C)"],
+     ["1","Molienda (Hegman)","","",""],["2","Densidad (g/mL)","","",""],
+     ["3","Viscosidad copa Ford #4 20 °C","","",""],["4","pH","","",""],
+     ["5","Sólidos (%)","","",""],["6","Poder cubriente CR 98% Erichsen","","",""],
+     ["7","Índice de blancura (WI)","","",""],["8","Índice de amarillamiento (YI)","","",""],
+     ["9","Brillo 60°","","",""],["10","Sinéresis (%)","","",""],
+     ["11","Grado de sedimentación","","",""]]},
+ {n:"Plan de la semana", d:"Actividad comprometida por día.",
+  f:[["Día","Actividad comprometida","Estado"],["Lunes","",""],["Martes","",""],
+     ["Miércoles","",""],["Jueves","",""],["Viernes","",""]]}
+];
+
+let doc = nuevoDoc(), seccionActiva="portada", guardaPend=null, destinoSec="desarrollo";
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function nuevoDoc(){
+  const d={id:uid(), tipo:"avance", titulo:"", cliente:"", responsable:"", lugar:"",
+           fecha:new Date().toISOString().slice(0,10), codigo:"", estadoSemana:"",
+           creado:Date.now(), editado:Date.now()};
+  BLOQUES_SECS.forEach(s=> d[s]=[]);
+  return d;
+}
+function obligatorios(){
+  try{ const o=JSON.parse(localStorage.getItem("obligatorios")||"null"); if(o) return o; }catch(e){}
+  return JSON.parse(JSON.stringify(OBLIG_DEF));
+}
+function req(){ return obligatorios()[doc.tipo]||[]; }
+function secsDe(tipo){ return TIPOS[tipo].secs; }
+function rotulo(tipo,sec){ return (TIPOS[tipo].rot||{})[sec] || (sec==="cumplimiento"?"Cumplimiento":SEC[sec].t); }
+
+let db=null;
+function abrirDB(){ return new Promise(res=>{ try{
+  const r=indexedDB.open("informes-codelpa",1);
+  r.onupgradeneeded=e=>e.target.result.createObjectStore("docs",{keyPath:"id"});
+  r.onsuccess=e=>{db=e.target.result;res(true)}; r.onerror=()=>res(false);
+}catch(e){res(false)} }); }
+function guardarDoc(){ doc.editado=Date.now(); if(!db) return;
+  try{ db.transaction("docs","readwrite").objectStore("docs").put(JSON.parse(JSON.stringify(doc))); }catch(e){} }
+function listarDocs(){ return new Promise(res=>{ if(!db) return res([]);
+  try{ const r=db.transaction("docs").objectStore("docs").getAll();
+    r.onsuccess=()=>res(r.result.sort((a,b)=>b.editado-a.editado)); r.onerror=()=>res([]);
+  }catch(e){res([])} }); }
+function borrarDocDB(id){ if(!db) return; try{ db.transaction("docs","readwrite").objectStore("docs").delete(id); }catch(e){} }
+let tEstado;
+function tocar(){ clearTimeout(guardaPend); const e=document.getElementById("estado");
+  e.textContent="Guardando…";
+  guardaPend=setTimeout(()=>{ guardarDoc(); e.textContent="Guardado"; pintarNav();
+    clearTimeout(tEstado); tEstado=setTimeout(()=>e.textContent="Se guarda solo",1600); },400); }
+let tToast;
+function avisar(txt){ const t=document.getElementById("toast"); t.textContent=txt; t.classList.add("ver");
+  clearTimeout(tToast); tToast=setTimeout(()=>t.classList.remove("ver"),2600); }
+function preguntar(texto,titulo,boton){ return new Promise(res=>{
+  document.getElementById("pregTitulo").textContent=titulo||"¿Seguro?";
+  document.getElementById("pregTexto").textContent=texto;
+  const si=document.getElementById("pregSi"), no=document.getElementById("pregNo");
+  si.textContent=boton||"Confirmar";
+  const fin=v=>{ dlgPregunta.close(); si.onclick=null; no.onclick=null; res(v); };
+  si.onclick=()=>fin(true); no.onclick=()=>fin(false);
+  dlgPregunta.showModal();
+}); }
+
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const nl2br=s=>esc(s).replace(/\n/g,"<br>");
+const leerDataURL=f=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(r.error);r.readAsDataURL(f)});
+const peso=n=>n<1024?n+" B":n<1048576?(n/1024).toFixed(0)+" KB":(n/1048576).toFixed(1)+" MB";
+const fechaCL=i=>{ if(!i) return ""; const p=i.split("-"); return p[2]+"-"+p[1]+"-"+p[0]; };
+function parsearPegado(txt){
+  const l=txt.replace(/\r/g,"").split("\n").filter(x=>x.trim()!=="");
+  if(!l.length) return null;
+  const sep=l[0].includes("\t")?"\t":(l[0].includes(";")?";":",");
+  const f=l.map(x=>x.split(sep).map(c=>c.trim()));
+  const w=Math.max(...f.map(r=>r.length)); f.forEach(r=>{while(r.length<w)r.push("")});
+  return f;
+}
+const esNum=v=>v!==""&&v!=null&&!isNaN(parseFloat(String(v).replace(/\./g,"").replace(",",".")));
+const aNum=v=>parseFloat(String(v).replace(/\./g,"").replace(",","."));
+
+function agregarBloque(sec,b){ b.id=uid(); doc[sec].push(b); tocar(); render();
+  setTimeout(()=>{ const el=document.getElementById("b-"+b.id); if(el) el.scrollIntoView({block:"center"}); },40); }
+async function quitarBloque(sec,id){
+  const b=doc[sec].find(x=>x.id===id);
+  const q={texto:"este texto",tabla:"esta tabla",imagen:"esta imagen",archivo:"este adjunto",grafico:"este gráfico"}[b?b.tipo:""]||"este bloque";
+  if(!await preguntar("Se quita "+q+" del informe. No se puede deshacer.","Eliminar","Eliminar")) return;
+  doc[sec]=doc[sec].filter(x=>x.id!==id); tocar(); render(); avisar("Eliminado");
+}
+function moverBloque(sec,id,d){ const a=doc[sec],i=a.findIndex(b=>b.id===id),j=i+d;
+  if(j<0||j>=a.length) return; const t=a[i]; a[i]=a[j]; a[j]=t; tocar(); render(); }
+async function ingerirArchivos(sec,files){
+  for(const f of files){
+    const ext=(f.name.split(".").pop()||"").toLowerCase();
+    if(f.type.startsWith("image/")) agregarBloque(sec,{tipo:"imagen",src:await leerDataURL(f),pie:""});
+    else if(["xlsx","xls","csv"].includes(ext)) await importarExcel(sec,f);
+    else agregarBloque(sec,{tipo:"archivo",nombre:f.name,mime:f.type||ext,bytes:f.size,src:await leerDataURL(f),pie:""});
+  }
+  avisar("Agregado al informe");
+}
+
+function cargarXLSX(){ if(window.XLSX) return Promise.resolve(true);
+  return new Promise(res=>{ const probar=u=>{ if(!u.length) return res(false);
+    const s=document.createElement("script"); s.src=u[0];
+    s.onload=()=>res(!!window.XLSX); s.onerror=()=>probar(u.slice(1)); document.head.appendChild(s); };
+    probar(["xlsx.full.min.js","https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"]); }); }
+let excelPend=null;
+async function importarExcel(sec,file){
+  if(!await cargarXLSX()){ avisar("No se encontró el lector de Excel. Copia el rango y usa «Pegar tabla»."); return; }
+  const wb=XLSX.read(await file.arrayBuffer(),{type:"array"});
+  excelPend={sec:sec,wb:wb};
+  document.getElementById("selHoja").innerHTML=wb.SheetNames.map(n=>"<option>"+esc(n)+"</option>").join("");
+  document.getElementById("inRango").value="";
+  dlgHojas.showModal();
+}
+document.getElementById("btnHojaOk").onclick=()=>{
+  const sec=excelPend.sec, wb=excelPend.wb, hoja=wb.Sheets[document.getElementById("selHoja").value];
+  const rango=document.getElementById("inRango").value.trim();
+  const op={header:1,blankrows:false,defval:""}; if(rango) op.range=rango;
+  let f=XLSX.utils.sheet_to_json(hoja,op).map(r=>r.map(c=>c==null?"":String(c)));
+  f=f.filter(r=>r.some(c=>String(c).trim()!==""));
+  if(!f.length){ avisar("Ese rango vino vacío."); return; }
+  const w=Math.max(...f.map(r=>r.length)); f.forEach(r=>{while(r.length<w)r.push("")});
+  dlgHojas.close();
+  agregarBloque(sec,{tipo:"tabla",filas:f,encab:document.getElementById("selEncab2").value==="si",pie:""});
+};
+
+function graficoSVG(b){
+  const filas=b.filas, encab=b.encab;
+  if(!filas||filas.length<(encab?2:1)) return "";
+  const cab=encab?filas[0]:filas[0].map((_,i)=>"Col "+(i+1));
+  const cuerpo=encab?filas.slice(1):filas, cols=[];
+  for(let c=1;c<cab.length;c++) if(cuerpo.filter(f=>esNum(f[c])).length>=cuerpo.length/2) cols.push(c);
+  if(!cols.length) return "";
+  const et=cuerpo.map(f=>String(f[0]||"")), ser=cols.map(c=>({n:cab[c],v:cuerpo.map(f=>esNum(f[c])?aNum(f[c]):null)}));
+  const W=640,H=300,ML=54,MR=14,MT=18,MB=56, todo=ser.reduce((a,s)=>a.concat(s.v),[]).filter(v=>v!=null);
+  let max=Math.max.apply(null,todo), min=Math.min(0,Math.min.apply(null,todo)); if(max===min) max=min+1;
+  const px=(i,n)=>ML+((W-ML-MR)/Math.max(n,1))*(i+.5), py=v=>MT+(H-MT-MB)*(1-(v-min)/(max-min));
+  const col=["#0B57A4","#E8A80C","#3f7a2e","#b3261e","#7a4ea8"];
+  let g='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:640px;height:auto;font-family:sans-serif">';
+  for(let i=0;i<=4;i++){ const v=min+(max-min)*i/4,y=py(v);
+    g+='<line x1="'+ML+'" y1="'+y+'" x2="'+(W-MR)+'" y2="'+y+'" stroke="#d8dee6"/>';
+    g+='<text x="'+(ML-6)+'" y="'+(y+3)+'" text-anchor="end" font-size="10" fill="#4a5560">'+v.toFixed(Math.abs(max-min)<10?1:0)+'</text>'; }
+  ser.forEach((s,si)=>{ const p=s.v.map((v,i)=>v==null?null:[px(i,s.v.length),py(v)]).filter(Boolean);
+    if(p.length>1) g+='<polyline fill="none" stroke="'+col[si%5]+'" stroke-width="2.2" points="'+p.map(q=>q.join(",")).join(" ")+'"/>';
+    p.forEach(q=>g+='<circle cx="'+q[0]+'" cy="'+q[1]+'" r="3.2" fill="'+col[si%5]+'"/>'); });
+  et.forEach((e,i)=>g+='<text x="'+px(i,et.length)+'" y="'+(H-MB+16)+'" text-anchor="middle" font-size="10" fill="#4a5560">'+esc(e.slice(0,12))+'</text>');
+  ser.forEach((s,si)=>{ const x=ML+si*120,y=H-14;
+    g+='<rect x="'+x+'" y="'+(y-8)+'" width="10" height="10" fill="'+col[si%5]+'"/>';
+    g+='<text x="'+(x+15)+'" y="'+y+'" font-size="11" fill="#15191f">'+esc(String(s.n).slice(0,16))+'</text>'; });
+  return g+"</svg>";
+}
+
+function pasos(){ return ["portada"].concat(secsDe(doc.tipo),["revisar"]); }
+function campoLleno(c){
+  if(c==="cumplimiento") return !!doc.estadoSemana;
+  if(BLOQUES_SECS.indexOf(c)>=0) return (doc[c]||[]).some(b=>b.tipo!=="texto"||(b.txt||"").trim());
+  return String(doc[c]||"").trim()!=="";
+}
+function pintarNav(){
+  const r=req(), nav=document.getElementById("navPasos");
+  const lista=pasos().map(id=>({id:id, t:id==="portada"?"Identificación":id==="revisar"?"Revisar y exportar":rotulo(doc.tipo,id)}));
+  nav.innerHTML=lista.map((s,i)=>{
+    let marca="";
+    if(s.id==="portada"){ const cs=Object.keys(CABECERA).filter(c=>r.indexOf(c)>=0);
+      if(cs.length) marca = cs.every(campoLleno)?'<span class="ok">●</span>':'<span class="falta">○</span>'; }
+    else if(r.indexOf(s.id)>=0) marca = campoLleno(s.id)?'<span class="ok">●</span>':'<span class="falta">○</span>';
+    return '<li><button data-sec="'+s.id+'" aria-current="'+(seccionActiva===s.id)+'">'+
+      '<span class="n">'+(i+1)+'</span><span style="flex:1">'+esc(s.t)+'</span>'+marca+'</button></li>';
+  }).join("");
+  nav.querySelectorAll("button").forEach(b=>b.onclick=()=>{seccionActiva=b.dataset.sec;render();scrollTo({top:0})});
+  const hechos=r.filter(campoLleno).length;
+  document.getElementById("avanceBarra").style.width=(r.length?Math.round(hechos/r.length*100):100)+"%";
+  document.getElementById("avanceTxt").textContent=hechos+" de "+r.length+" obligatorios";
+}
+
+function render(){
+  document.getElementById("selTipo").value=doc.tipo;
+  if(pasos().indexOf(seccionActiva)<0) seccionActiva="portada";
+  pintarNav();
+  const p=document.getElementById("panel");
+  p.innerHTML = seccionActiva==="portada" ? vistaPortada()
+    : seccionActiva==="revisar" ? vistaRevisar()
+    : seccionActiva==="cumplimiento" ? vistaCumplimiento() : vistaCuerpo(seccionActiva);
+  conectar();
+}
+function sigDe(id){ const p=pasos(); return p[p.indexOf(id)+1]; }
+function botonesPie(id){
+  const s=sigDe(id);
+  const et = s==="revisar" ? "Revisar y exportar" : s ? rotulo(doc.tipo,s) : "";
+  return '<div class="acciones" style="margin-top:22px">'+
+    (s?'<button class="btn p" data-ir="'+s+'">Continuar a '+esc(et)+'</button>':"")+
+    (s!=="revisar"?'<button class="btn" data-ir="revisar">Ir a revisar</button>':"")+'</div>';
+}
+
+function vistaPortada(){
+  const r=req(), ob=c=>r.indexOf(c)>=0?' <em>*</em>':'';
+  const v=doc.tipo==="visita";
+  return '<section class="hoja"><h2>Identificación</h2>'+
+  '<p class="pista">Datos de cabecera. El tipo elegido arriba define las secciones que siguen.</p>'+
+  '<label class="campo"><span>'+(v?"Asunto de la visita":"Título del proyecto")+ob("titulo")+'</span>'+
+  '<input type="text" data-campo="titulo" value="'+esc(doc.titulo)+'" placeholder="'+
+    (v?"Ej: Visita a planta B&amp;C — seguimiento esmalte":"Ej: Esmalte I-280 — ajuste de brillo")+'"></label>'+
+  '<div class="dupla">'+
+  '<label class="campo"><span>Cliente'+ob("cliente")+'</span><input type="text" data-campo="cliente" value="'+esc(doc.cliente)+'" placeholder="Ej: B&amp;C"></label>'+
+  '<label class="campo"><span>Responsable'+ob("responsable")+'</span><input type="text" data-campo="responsable" value="'+esc(doc.responsable)+'" placeholder="Nombre y apellido"></label>'+
+  '<label class="campo"><span>Fecha</span><input type="date" data-campo="fecha" value="'+esc(doc.fecha)+'"></label>'+
+  (v?'<label class="campo"><span>Lugar</span><input type="text" data-campo="lugar" value="'+esc(doc.lugar)+'" placeholder="Planta, ciudad"></label>'
+    :'<label class="campo"><span>Código interno</span><input type="text" data-campo="codigo" value="'+esc(doc.codigo)+'" placeholder="Opcional"></label>')+
+  '</div><div class="acciones"><button class="btn mini" id="abrirOblig">Ver qué campos son obligatorios</button></div>'+
+  botonesPie("portada")+'</section>';
+}
+
+function vistaCumplimiento(){
+  const op=[["cumplido","Se cumplió"],["parcial","Se cumplió en parte"],["no","No se cumplió"]];
+  return '<section class="hoja"><h2>¿Se cumplió el objetivo de la semana?</h2>'+
+  '<p class="pista">Esta es la pregunta central del entregable. Si no se cumplió, la sección siguiente pide los motivos.</p>'+
+  '<div class="opciones">'+op.map(o=>'<label><input type="radio" name="est" value="'+o[0]+'"'+
+    (doc.estadoSemana===o[0]?" checked":"")+'> '+o[1]+'</label>').join("")+'</div>'+
+  (doc.estadoSemana&&doc.estadoSemana!=="cumplido"?'<div class="aviso">Explica los motivos en la sección siguiente.</div>':"")+
+  botonesPie("cumplimiento")+'</section>';
+}
+
+function vistaCuerpo(id){
+  const bl=doc[id]||[], conTablas=["desarrollo","resumen","acuerdos","anexos","motivos"].indexOf(id)>=0;
+  return '<section class="hoja" data-sec="'+id+'"><h2>'+esc(rotulo(doc.tipo,id))+'</h2>'+
+  '<p class="pista">'+esc(SEC[id].pista)+'</p>'+
+  '<div class="zona" id="zona-'+id+'"><p>Arrastra aquí fotos, planillas de Excel, PDF o correos.<br>En el teléfono, toca para elegir archivos.</p></div>'+
+  '<div class="acciones">'+
+  '<button class="btn mini" data-add="texto" data-sec="'+id+'">Texto</button>'+
+  '<button class="btn mini" data-add="pegar" data-sec="'+id+'">Pegar tabla de Excel</button>'+
+  (conTablas?'<button class="btn mini" data-add="plantilla" data-sec="'+id+'">Tabla</button>':"")+
+  '<button class="btn mini" data-pick="inExcel" data-sec="'+id+'">Archivo Excel</button>'+
+  '<button class="btn mini" data-pick="inFoto" data-sec="'+id+'">Tomar foto</button>'+
+  '<button class="btn mini" data-pick="inImg" data-sec="'+id+'">Imagen</button>'+
+  '<button class="btn mini" data-pick="inArch" data-sec="'+id+'">Adjuntar</button></div>'+
+  bl.map((b,i)=>pintarBloque(id,b,i,bl.length)).join("")+
+  (!bl.length?'<div class="aviso">Sección vacía. Empieza con «Texto» o adjunta algo.</div>':"")+
+  botonesPie(id)+'</section>';
+}
+
+function pintarBloque(sec,b,i,n){
+  const cab=(nom,extra)=>'<header><b>'+nom+'</b><span class="sep"></span>'+(extra||"")+
+    '<button class="btn mini" data-mov="-1" data-sec="'+sec+'" data-id="'+b.id+'"'+(i===0?" disabled":"")+' aria-label="Subir">↑</button>'+
+    '<button class="btn mini" data-mov="1" data-sec="'+sec+'" data-id="'+b.id+'"'+(i===n-1?" disabled":"")+' aria-label="Bajar">↓</button>'+
+    '<button class="btn mini rojo" data-del data-sec="'+sec+'" data-id="'+b.id+'">Eliminar</button></header>';
+  if(b.tipo==="texto") return '<div class="bloque" id="b-'+b.id+'">'+
+    cab("Texto")+
+    '<div class="cuerpo" style="padding:0"><textarea data-txt data-sec="'+sec+'" data-id="'+b.id+'" style="border:0;background:none;border-radius:0" placeholder="Escribe aquí…">'+esc(b.txt||"")+'</textarea></div></div>';
+  if(b.tipo==="tabla"){ const f=b.filas||[];
+    return '<div class="bloque" id="b-'+b.id+'">'+
+      cab("Tabla "+f.length+"×"+((f[0]||[]).length),'<button class="btn mini" data-graf data-sec="'+sec+'" data-id="'+b.id+'">Graficar</button>')+
+      '<div class="cuerpo"><table class="datos"><tbody>'+f.map((fila,ri)=>'<tr>'+fila.map((c,ci)=>{
+        const t=(b.encab&&ri===0)?"th":"td";
+        return '<'+t+' contenteditable data-cel data-sec="'+sec+'" data-id="'+b.id+'" data-r="'+ri+'" data-c="'+ci+'">'+esc(c)+'</'+t+'>';
+      }).join("")+'</tr>').join("")+'</tbody></table></div>'+
+      '<input class="pie" data-pie data-sec="'+sec+'" data-id="'+b.id+'" value="'+esc(b.pie||"")+'" placeholder="Título de la tabla (ej: Tabla 3. Parámetros de calidad)"></div>'; }
+  if(b.tipo==="grafico"){ const t=doc[sec].find(x=>x.id===b.ref);
+    return '<div class="bloque" id="b-'+b.id+'">'+cab("Gráfico")+
+      '<div class="cuerpo" style="text-align:center">'+(t?graficoSVG(t):'<p class="pista">La tabla de origen ya no existe.</p>')+'</div>'+
+      '<input class="pie" data-pie data-sec="'+sec+'" data-id="'+b.id+'" value="'+esc(b.pie||"")+'" placeholder="Título del gráfico (ej: Figura 1. Evolución de viscosidad)"></div>'; }
+  if(b.tipo==="imagen") return '<div class="bloque" id="b-'+b.id+'">'+cab("Imagen")+
+    '<div class="cuerpo"><img class="foto" src="'+b.src+'" alt=""></div>'+
+    '<input class="pie" data-pie data-sec="'+sec+'" data-id="'+b.id+'" value="'+esc(b.pie||"")+'" placeholder="Pie de foto (ej: Figura 2. Película seca a 24 h)"></div>';
+  if(b.tipo==="archivo"){ const ext=(b.nombre.split(".").pop()||"?").toUpperCase().slice(0,4);
+    return '<div class="bloque" id="b-'+b.id+'">'+cab("Adjunto")+
+      '<div class="cuerpo"><div class="adj"><span class="ico">'+esc(ext)+'</span>'+
+      '<span style="flex:1;min-width:120px"><b>'+esc(b.nombre)+'</b><br><span class="meta">'+peso(b.bytes||0)+'</span></span>'+
+      '<a class="btn mini" href="'+b.src+'" download="'+esc(b.nombre)+'">Abrir</a></div></div>'+
+      '<input class="pie" data-pie data-sec="'+sec+'" data-id="'+b.id+'" value="'+esc(b.pie||"")+'" placeholder="Qué contiene este adjunto"></div>'; }
+  return "";
+}
+
+function vistaRevisar(){
+  const r=req(), faltan=r.filter(c=>!campoLleno(c));
+  const nom=c=>CABECERA[c]||rotulo(doc.tipo,c);
+  return '<section class="hoja"><h2>Revisar y exportar</h2>'+
+  '<p class="pista">Así va a salir el informe. Elige dónde guardarlo o imprímelo.</p>'+
+  (faltan.length?'<div class="aviso"><b>Falta completar</b>'+faltan.map(nom).join(", ")+'. Puedes exportar igual; lo que falte sale marcado en rojo.</div>'
+    :'<div class="aviso ok"><b>Informe completo</b>Según lo definido para «'+TIPOS[doc.tipo].et+'».</div>')+
+  '<div class="acciones no-print" style="margin:16px 0 22px">'+
+  '<button class="btn p" id="expWord">Descargar Word</button>'+
+  '<button class="btn" id="expPDF">Imprimir o guardar PDF</button>'+
+  '<button class="btn" id="expHTML">Descargar página</button>'+
+  '<button class="btn" id="expCompartir">Compartir</button></div>'+
+  papelHTML()+'</section>';
+}
+
+function papelHTML(){
+  const faltante='<span class="vacio">[pendiente]</span>';
+  const celda=v=>String(v||"").trim()?esc(v):faltante;
+  const cuerpo=id=>{
+    const bl=doc[id]||[]; if(!bl.length) return faltante;
+    return bl.map(b=>{
+      if(b.tipo==="texto") return '<p style="margin:0 0 8px">'+nl2br(b.txt||"")+'</p>';
+      if(b.tipo==="tabla"){ const f=b.filas||[];
+        return '<figure><table class="datos" align="center"><tbody>'+f.map((fila,ri)=>'<tr>'+fila.map(c=>
+          (b.encab&&ri===0)?'<th>'+esc(c)+'</th>':'<td>'+esc(c)+'</td>').join("")+'</tr>').join("")+'</tbody></table>'+
+          (b.pie?'<figcaption>'+esc(b.pie)+'</figcaption>':"")+'</figure>'; }
+      if(b.tipo==="grafico"){ const t=(doc[id]||[]).find(x=>x.id===b.ref);
+        return t?'<figure>'+graficoSVG(t)+(b.pie?'<figcaption>'+esc(b.pie)+'</figcaption>':"")+'</figure>':""; }
+      if(b.tipo==="imagen") return '<figure><img src="'+b.src+'" style="max-width:100%;max-height:330px">'+
+        (b.pie?'<figcaption>'+esc(b.pie)+'</figcaption>':"")+'</figure>';
+      if(b.tipo==="archivo") return '<p class="adjlinea" align="center">Adjunto: <b>'+esc(b.nombre)+'</b> ('+peso(b.bytes||0)+')'+
+        (b.pie?" — "+esc(b.pie):"")+'</p>';
+      return "";
+    }).join("");
+  };
+  const estTxt={cumplido:"Se cumplió",parcial:"Se cumplió en parte",no:"No se cumplió"};
+  const filas=secsDe(doc.tipo).map(s=> s==="cumplimiento"
+    ? '<tr><td class="et">Cumplimiento</td><td>'+(doc.estadoSemana?esc(estTxt[doc.estadoSemana]):faltante)+'</td></tr>'
+    : '<tr><td class="et">'+esc(rotulo(doc.tipo,s))+'</td><td>'+cuerpo(s)+'</td></tr>').join("");
+  return '<div class="papel" id="papel"><div class="enc"><h1>INFORME</h1>'+
+    '<p>'+esc(TIPOS[doc.tipo].et)+'</p></div>'+
+    '<table class="doc">'+
+    '<tr><td class="et">'+(doc.tipo==="visita"?"Asunto":"Título Proyecto")+'</td><td>'+celda(doc.titulo)+
+      (doc.codigo?' <span style="color:#4a5560">('+esc(doc.codigo)+')</span>':"")+'</td></tr>'+
+    '<tr><td class="et">Cliente</td><td>'+celda(doc.cliente)+'</td></tr>'+
+    (doc.tipo==="visita"?'<tr><td class="et">Lugar</td><td>'+celda(doc.lugar)+'</td></tr>':"")+
+    '<tr><td class="et">Responsable</td><td>'+celda(doc.responsable)+'</td></tr>'+
+    '<tr><td class="et">Fecha</td><td>'+esc(fechaCL(doc.fecha))+'</td></tr>'+
+    filas+'</table></div>';
+}
+function nombreArchivo(ext){
+  const t=(doc.titulo||"informe").replace(/[^\wáéíóúñÁÉÍÓÚÑ \-]/g,"").trim().replace(/\s+/g,"_").slice(0,50);
+  return "Informe_"+t+"_"+doc.fecha+"."+ext;
+}
+function docCompleto(){
+  const css='body{font-family:Calibri,Arial,sans-serif;font-size:11pt;color:#15191f}'+
+   'table.doc{width:100%;border-collapse:collapse;font-size:10.5pt}'+
+   'table.doc td{border:1px solid #666;padding:5pt 7pt;vertical-align:top}'+
+   'table.doc td.et{width:110pt;background:#eef1f5;font-weight:bold}'+
+   'figure{margin:8pt 0;text-align:center}'+
+   'table.datos{border-collapse:collapse;font-size:9pt;margin:0 auto}'+
+   'table.datos td,table.datos th{border:1px solid #666;padding:2pt 5pt}'+
+   'table.datos th{background:#eef1f5;font-weight:bold;text-align:left}'+
+   'figcaption{font-size:8.5pt;color:#4a5560;text-align:center}'+
+   'img{display:block;margin:0 auto}'+
+   '.enc{border-bottom:2px solid #15191f;padding-bottom:6pt;margin-bottom:12pt;text-align:center}'+
+   '.enc h1{font-family:Georgia,serif;font-size:24pt;font-weight:normal;letter-spacing:6pt;margin:0}'+
+   '.enc p{margin:2pt 0 0;font-size:8.5pt;letter-spacing:2pt;color:#4a5560;text-transform:uppercase}'+
+   '.vacio{color:#b3261e;font-style:italic}.adjlinea{text-align:center;font-size:9pt}';
+  return '<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>'+esc(doc.titulo||"Informe técnico")+
+    '</title><style>'+css+'</style></head><body>'+papelHTML().replace('class="papel" id="papel"','')+'</body></html>';
+}
+function bajar(blob,nombre){
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=nombre;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+  avisar("Descargado: "+nombre);
+}
+
+function conectar(){
+  const p=document.getElementById("panel");
+  p.querySelectorAll("[data-campo]").forEach(el=>el.oninput=()=>{doc[el.dataset.campo]=el.value;tocar()});
+  p.querySelectorAll("[data-ir]").forEach(b=>b.onclick=()=>{seccionActiva=b.dataset.ir;render();scrollTo({top:0})});
+  p.querySelectorAll("[name=est]").forEach(r=>r.onchange=()=>{doc.estadoSemana=r.value;tocar();render()});
+  p.querySelectorAll("[data-txt]").forEach(t=>t.oninput=()=>{
+    const b=doc[t.dataset.sec].find(x=>x.id===t.dataset.id); if(b){b.txt=t.value;tocar()}});
+  p.querySelectorAll("[data-pie]").forEach(t=>t.oninput=()=>{
+    const b=doc[t.dataset.sec].find(x=>x.id===t.dataset.id); if(b){b.pie=t.value;tocar()}});
+  p.querySelectorAll("[data-cel]").forEach(c=>c.onblur=()=>{
+    const b=doc[c.dataset.sec].find(x=>x.id===c.dataset.id);
+    if(b){b.filas[+c.dataset.r][+c.dataset.c]=c.textContent.trim();tocar()}});
+  p.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>quitarBloque(b.dataset.sec,b.dataset.id));
+  p.querySelectorAll("[data-mov]").forEach(b=>b.onclick=()=>moverBloque(b.dataset.sec,b.dataset.id,+b.dataset.mov));
+  p.querySelectorAll("[data-graf]").forEach(b=>b.onclick=()=>{
+    const t=doc[b.dataset.sec].find(x=>x.id===b.dataset.id);
+    if(!graficoSVG(t)) return avisar("Esa tabla no tiene columnas numéricas que graficar.");
+    agregarBloque(b.dataset.sec,{tipo:"grafico",ref:b.dataset.id,pie:""});});
+  p.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>{
+    destinoSec=b.dataset.sec;
+    if(b.dataset.add==="texto") agregarBloque(destinoSec,{tipo:"texto",txt:""});
+    else if(b.dataset.add==="plantilla") abrirPlantillas();
+    else { document.getElementById("pegaTabla").value=""; dlgTabla.showModal();
+           setTimeout(()=>document.getElementById("pegaTabla").focus(),60); }});
+  p.querySelectorAll("[data-pick]").forEach(b=>b.onclick=()=>{
+    destinoSec=b.dataset.sec; document.getElementById(b.dataset.pick).click();});
+  const ob=document.getElementById("abrirOblig"); if(ob) ob.onclick=abrirObligatorios;
+
+  const z=p.querySelector(".zona");
+  if(z){ const sec=z.id.replace("zona-","");
+    ["dragenter","dragover"].forEach(e=>z.addEventListener(e,ev=>{ev.preventDefault();z.classList.add("encima")}));
+    ["dragleave","drop"].forEach(e=>z.addEventListener(e,ev=>{ev.preventDefault();z.classList.remove("encima")}));
+    z.addEventListener("drop",ev=>{if(ev.dataTransfer.files.length) ingerirArchivos(sec,ev.dataTransfer.files)});
+    z.onclick=()=>{destinoSec=sec;document.getElementById("inArch").click()}; }
+
+  const w=document.getElementById("expWord");
+  if(w){
+    w.onclick=()=>bajar(new Blob(["\ufeff"+docCompleto()],{type:"application/msword"}),nombreArchivo("doc"));
+    document.getElementById("expPDF").onclick=()=>print();
+    document.getElementById("expHTML").onclick=()=>bajar(new Blob([docCompleto()],{type:"text/html"}),nombreArchivo("html"));
+    document.getElementById("expCompartir").onclick=async()=>{
+      try{
+        const f=new File([docCompleto()],nombreArchivo("doc"),{type:"application/msword"});
+        if(navigator.canShare&&navigator.canShare({files:[f]})) await navigator.share({files:[f],title:doc.titulo||"Informe técnico"});
+        else avisar("Este navegador no permite compartir. Usa «Descargar Word».");
+      }catch(e){}
+    };
+  }
+}
+
+addEventListener("paste",async ev=>{
+  if(seccionActiva==="portada"||seccionActiva==="revisar"||seccionActiva==="cumplimiento") return;
+  const t=ev.target.tagName;
+  if(t==="TEXTAREA"||t==="INPUT"||ev.target.isContentEditable) return;
+  const it=[].slice.call(ev.clipboardData?ev.clipboardData.items:[]), img=it.find(i=>i.type.indexOf("image/")===0);
+  if(img){ ev.preventDefault(); agregarBloque(seccionActiva,{tipo:"imagen",src:await leerDataURL(img.getAsFile()),pie:""}); return; }
+  const txt=ev.clipboardData?ev.clipboardData.getData("text/plain"):"";
+  if(txt.indexOf("\t")>=0||/\n/.test(txt.trim())){ ev.preventDefault();
+    const f=parsearPegado(txt); if(f) agregarBloque(seccionActiva,{tipo:"tabla",filas:f,encab:true,pie:""}); }
+});
+document.getElementById("btnTablaOk").onclick=()=>{
+  const f=parsearPegado(document.getElementById("pegaTabla").value);
+  if(!f) return avisar("No se leyó ninguna tabla.");
+  dlgTabla.close();
+  agregarBloque(destinoSec,{tipo:"tabla",filas:f,encab:document.getElementById("selEncab").value==="si",pie:""});
+};
+["inFoto","inImg","inArch"].forEach(id=>document.getElementById(id).onchange=async e=>{
+  if(e.target.files.length) await ingerirArchivos(destinoSec,e.target.files); e.target.value="";});
+document.getElementById("inExcel").onchange=async e=>{
+  if(e.target.files[0]) await importarExcel(destinoSec,e.target.files[0]); e.target.value="";};
+
+function abrirPlantillas(){
+  document.getElementById("listaPlantillas").innerHTML=PLANTILLAS.map((p,i)=>
+    '<div class="bloque" style="margin-top:10px"><header><b>'+esc(p.n)+'</b><span class="sep"></span>'+
+    '<button class="btn mini p" data-plant="'+i+'">Insertar</button></header>'+
+    '<div class="cuerpo" style="padding:10px"><p class="pista" style="margin:0">'+esc(p.d)+'</p></div></div>').join("");
+  document.querySelectorAll("[data-plant]").forEach(b=>b.onclick=()=>{
+    const p=PLANTILLAS[+b.dataset.plant]; dlgPlantillas.close();
+    agregarBloque(destinoSec,{tipo:"tabla",filas:JSON.parse(JSON.stringify(p.f)),encab:true,pie:p.n});});
+  dlgPlantillas.showModal();
+}
+document.getElementById("btnBlancoOk").onclick=()=>{
+  const encab=document.getElementById("selEncab3").value==="si";
+  const nc=Math.max(1,Math.min(12,+document.getElementById("nCols").value||3));
+  const nf=Math.max(1,Math.min(60,+document.getElementById("nFilas").value||5))+(encab?1:0);
+  const filas=[]; for(let i=0;i<nf;i++){ const r=[]; for(let c=0;c<nc;c++) r.push(""); filas.push(r); }
+  dlgPlantillas.close();
+  agregarBloque(destinoSec,{tipo:"tabla",filas:filas,encab:encab,pie:""});
+};
+
+function abrirObligatorios(){ pintarMatriz(obligatorios()); dlgObligatorios.showModal(); }
+function pintarMatriz(ob){
+  const tipos=Object.keys(TIPOS), campos=Object.keys(CABECERA).concat(TODAS_SECS);
+  const nom=c=>CABECERA[c]||(c==="cumplimiento"?"Cumplimiento":SEC[c].t);
+  document.getElementById("matriz").innerHTML=
+    '<thead><tr><th>Campo</th>'+tipos.map(t=>'<th>'+esc(TIPOS[t].et.replace("Informe ","").replace("de ",""))+'</th>').join("")+'</tr></thead>'+
+    '<tbody>'+campos.map(c=>'<tr><td>'+esc(nom(c))+'</td>'+tipos.map(t=>{
+       const aplica = Object.keys(CABECERA).indexOf(c)>=0 || secsDe(t).indexOf(c)>=0;
+       return aplica ? '<td><input type="checkbox" data-t="'+t+'" data-c="'+c+'"'+(ob[t].indexOf(c)>=0?" checked":"")+'></td>'
+                     : '<td class="na">—</td>';
+     }).join("")+'</tr>').join("")+'</tbody>';
+}
+document.getElementById("btnObligGuardar").onclick=()=>{
+  const ob={}; Object.keys(TIPOS).forEach(t=>ob[t]=[]);
+  document.querySelectorAll("#matriz input:checked").forEach(i=>ob[i.dataset.t].push(i.dataset.c));
+  try{ localStorage.setItem("obligatorios",JSON.stringify(ob)); }catch(e){}
+  dlgObligatorios.close(); render(); avisar("Guardado");
+};
+document.getElementById("btnObligDefecto").onclick=()=>pintarMatriz(OBLIG_DEF);
+
+const selTipo=document.getElementById("selTipo");
+selTipo.innerHTML=Object.keys(TIPOS).map(k=>'<option value="'+k+'">'+TIPOS[k].et+'</option>').join("");
+selTipo.onchange=()=>{doc.tipo=selTipo.value;seccionActiva="portada";tocar();render()};
+document.getElementById("btnNuevo").onclick=async()=>{
+  if(!await preguntar("El informe actual queda guardado en Borradores y se abre uno en blanco.","Informe nuevo","Empezar")) return;
+  guardarDoc(); doc=nuevoDoc(); seccionActiva="portada"; guardarDoc(); render(); avisar("Informe nuevo");
+};
+document.getElementById("btnTema").onclick=()=>{
+  const r=document.documentElement, h=r.getAttribute("data-theme");
+  const osc=h?h==="dark":matchMedia("(prefers-color-scheme: dark)").matches;
+  r.setAttribute("data-theme",osc?"light":"dark");
+  try{localStorage.setItem("tema",osc?"light":"dark")}catch(e){}
+};
+try{var tG=localStorage.getItem("tema"); if(tG) document.documentElement.setAttribute("data-theme",tG);}catch(e){}
+document.querySelectorAll("[data-cerrar]").forEach(b=>b.onclick=()=>b.closest("dialog").close());
+document.querySelectorAll("dialog").forEach(d=>d.addEventListener("click",e=>{if(e.target===d)d.close()}));
+
+document.getElementById("btnBorradores").onclick=async()=>{
+  guardarDoc();
+  const l=await listarDocs(), ul=document.getElementById("listaBorradores");
+  ul.innerHTML=l.length?l.map(d=>'<li><span class="t"><b>'+esc(d.titulo||"(sin título)")+'</b>'+
+    '<span>'+esc((TIPOS[d.tipo]||{}).et||d.tipo)+' · '+new Date(d.editado).toLocaleString("es-CL")+(d.id===doc.id?" · abierto":"")+'</span></span>'+
+    '<button class="btn mini" data-abrir="'+d.id+'">Abrir</button>'+
+    '<button class="btn mini rojo" data-borrar="'+d.id+'">Eliminar</button></li>').join("")
+    :'<li><span class="t">Todavía no hay borradores.</span></li>';
+  ul.querySelectorAll("[data-abrir]").forEach(b=>b.onclick=()=>{
+    guardarDoc(); doc=l.find(d=>d.id===b.dataset.abrir);
+    BLOQUES_SECS.forEach(s=>doc[s]=doc[s]||[]);
+    seccionActiva="portada"; dlgBorradores.close(); render(); avisar("Borrador abierto");});
+  ul.querySelectorAll("[data-borrar]").forEach(b=>b.onclick=async()=>{
+    if(!await preguntar("Se elimina este borrador de este equipo.","Eliminar borrador","Eliminar")) return;
+    const id=b.dataset.borrar; borrarDocDB(id); b.closest("li").remove(); avisar("Borrador eliminado");
+    if(id===doc.id){ doc=nuevoDoc(); seccionActiva="portada"; render(); }});
+  dlgBorradores.showModal();
+};
+document.getElementById("btnExportarJSON").onclick=()=>{
+  guardarDoc(); bajar(new Blob([JSON.stringify(doc,null,1)],{type:"application/json"}),nombreArchivo("json"));};
+document.getElementById("btnImportar").onclick=()=>document.getElementById("inJSON").click();
+document.getElementById("inJSON").onchange=e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{ try{ const d=JSON.parse(r.result); if(!d.tipo||!TIPOS[d.tipo]) throw 0;
+      doc=d; doc.id=doc.id||uid(); BLOQUES_SECS.forEach(s=>doc[s]=doc[s]||[]);
+      seccionActiva="portada"; guardarDoc(); dlgBorradores.close(); render(); avisar("Copia abierta");
+    }catch(err){ avisar("Ese archivo no es una copia válida."); } };
+  r.readAsText(f); e.target.value="";
+};
+
+document.getElementById("btnAyuda").onclick=()=>{
+  document.getElementById("textoAyuda").innerHTML=
+  '<h4>Dónde se guarda lo que escribes</h4>'+
+  '<p>Dentro del navegador de este dispositivo, en su almacenamiento propio. No hay servidor ni nube: '+
+  'nada viaja por internet. Se guarda solo mientras escribes, y si cierras y vuelves, el último informe '+
+  'se abre donde lo dejaste.</p>'+
+  '<p>Eso también significa que un informe empezado en el teléfono no aparece en el computador. '+
+  'Para pasarlo usa <b>Borradores → Guardar copia</b> y abre ese archivo en el otro equipo. Y si alguien '+
+  'borra los datos del navegador, los borradores se van: conviene exportar el informe terminado apenas esté listo.</p>'+
+  '<h4>Tener la aplicación en el teléfono</h4>'+
+  '<p>En iPhone: abre la página en Safari, botón Compartir, «Añadir a pantalla de inicio». '+
+  'En Android: menú de Chrome, «Instalar aplicación». Queda como un ícono más y funciona sin señal.</p>'+
+  '<h4>El flujo pensado</h4>'+
+  '<p>Empiezas en el móvil durante el ensayo y tomas la foto ahí mismo. Pegas las tablas cuando llegas al '+
+  'computador. Cuando terminas, exportas: ahí tú decides si va a la carpeta de red, al correo o a la impresora.</p>'+
+  '<h4>Campos obligatorios</h4>'+
+  '<p>En Identificación hay una tabla para marcar, por cada tipo de informe, qué no se puede dejar en blanco.</p>';
+  dlgAyuda.showModal();
+};
+
+try{
+  const man={name:"No importa",short_name:"No importa",display:"standalone",
+    start_url:".",background_color:"#eef1f5",theme_color:"#0B57A4"};
+  const l=document.createElement("link"); l.rel="manifest";
+  l.href=URL.createObjectURL(new Blob([JSON.stringify(man)],{type:"application/manifest+json"}));
+  document.head.appendChild(l);
+}catch(e){}
+
+(async()=>{
+  await abrirDB();
+  const l=await listarDocs();
+  if(l.length){ doc=l[0]; BLOQUES_SECS.forEach(s=>doc[s]=doc[s]||[]); }
+  render();
+  document.getElementById("estado").textContent="Se guarda solo";
+})();
+addEventListener("beforeunload",()=>guardarDoc());
+</script>
+</body>
+</html>
