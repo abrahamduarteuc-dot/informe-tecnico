@@ -10,6 +10,20 @@
 
   /* ---------------------------------------------------------------- utilidades */
   function fechaCL(i) { if (!i) return ""; var p = String(i).split("-"); return p.length === 3 ? p[2] + "-" + p[1] + "-" + p[0] : i; }
+  /* Semana laboral (lunes a viernes) y número ISO de la fecha elegida (aaaa-mm-dd) */
+  function semana(iso) {
+    var p = String(iso || "").split("-"); if (p.length !== 3) return null;
+    var d = new Date(Date.UTC(+p[0], +p[1] - 1, +p[2])); if (isNaN(d)) return null;
+    var dow = (d.getUTCDay() + 6) % 7;                       // 0 = lunes
+    var lun = new Date(d); lun.setUTCDate(d.getUTCDate() - dow);
+    var vie = new Date(lun); vie.setUTCDate(lun.getUTCDate() + 4);
+    var jue = new Date(lun); jue.setUTCDate(lun.getUTCDate() + 3);   // el jueves decide el año ISO
+    var ini = new Date(Date.UTC(jue.getUTCFullYear(), 0, 1));
+    var n = Math.floor((jue - ini) / 864e5 / 7) + 1;
+    var f = function (x) { return ("0" + x.getUTCDate()).slice(-2) + "/" + ("0" + (x.getUTCMonth() + 1)).slice(-2); };
+    return { n: n, anio: jue.getUTCFullYear(), ini: f(lun), fin: f(vie),
+             etiqueta: "Semana " + n + " (" + f(lun) + " - " + f(vie) + ")" };
+  }
   function peso(n) { n = n || 0; return n < 1024 ? n + " B" : n < 1048576 ? (n / 1024).toFixed(0) + " KB" : (n / 1048576).toFixed(1) + " MB"; }
   function vacio(s) { return !String(s == null ? "" : s).trim(); }
 
@@ -102,11 +116,14 @@
         ? [{ t: "p", txt: v + ex, key: key, val: v, extra: ex }]
         : [{ t: "p", txt: "[pendiente]", pend: true, key: key }] });
     }
-    campo(doc.tipo === "visita" ? "Asunto" : "Título Proyecto", doc.titulo, doc.codigo, "titulo");
-    campo("Cliente", doc.cliente, "", "cliente");
-    if (doc.tipo === "visita") campo("Lugar", doc.lugar, "", "lugar");
+    var sem = doc.tipo === "semanal" ? semana(doc.fecha) : null;
+    if (doc.tipo !== "semanal") {
+      campo(doc.tipo === "visita" ? "Asunto" : "Título Proyecto", doc.titulo, doc.codigo, "titulo");
+      campo("Cliente", doc.cliente, "", "cliente");
+      if (doc.tipo === "visita") campo("Lugar", doc.lugar, "", "lugar");
+    }
     campo("Responsable", doc.responsable, "", "responsable");
-    filas.push({ label: "Fecha", campo: true, items: [{ t: "p", txt: fechaCL(doc.fecha) }] });
+    filas.push({ label: "Fecha", campo: true, items: [{ t: "p", txt: sem ? sem.etiqueta : fechaCL(doc.fecha) }] });
 
     cfg.secsDe(doc.tipo).forEach(function (s) {
       var label = cfg.rotulo(doc.tipo, s);
@@ -174,6 +191,8 @@
   }
 
   function nombreBase(doc) {
+    var sm = doc.tipo === "semanal" ? semana(doc.fecha) : null;
+    if (sm) return "Informe_Entregable_Semana_" + sm.n + "_" + sm.anio;
     var t = String(doc.titulo || "informe").replace(/[^\wáéíóúñÁÉÍÓÚÑ \-]/g, "").trim().replace(/\s+/g, "_").slice(0, 50);
     return "Informe_" + (t || "informe") + "_" + (doc.fecha || "");
   }
@@ -463,7 +482,7 @@
 
   root.Exp = {
     construir: construir, preparar: preparar, aDocx: aDocx, aPDF: aPDF,
-    nombreBase: nombreBase, modoDe: modoDe, LIMITE_EN_LINEA: LIMITE_EN_LINEA,
+    nombreBase: nombreBase, semana: semana, modoDe: modoDe, LIMITE_EN_LINEA: LIMITE_EN_LINEA,
     util: { dataURLaBytes: dataURLaBytes, cargarImagen: cargarImagen, svgAPng: svgAPng, repartir: repartir, pesosColumnas: pesosColumnas }
   };
 })(typeof window !== "undefined" ? window : globalThis);

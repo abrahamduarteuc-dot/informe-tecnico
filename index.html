@@ -85,6 +85,7 @@ label.campo span{display:block;font-size:13.5px;font-weight:500;margin-bottom:5p
 label.campo span em{font-style:normal;color:var(--alerta)}
 input[type=text],input[type=date],select,textarea{width:100%;padding:10px 11px;border:1px solid var(--linea);
   border-radius:8px;background:var(--panel-2)}
+input[type=date]{display:block;min-width:0;max-width:100%;height:46px;-webkit-appearance:none;appearance:none;text-align:left}
 input:focus,select:focus,textarea:focus{outline:2px solid var(--azul);outline-offset:-1px;border-color:var(--azul)}
 textarea{min-height:120px;resize:vertical;line-height:1.55}
 .dupla{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
@@ -118,6 +119,9 @@ table.datos td[contenteditable]:focus,table.datos th[contenteditable]:focus{outl
 .papel{background:var(--papel);color:#15191f;max-width:820px;margin:0 auto;padding:34px 40px;border-radius:4px;
   box-shadow:0 1px 4px rgba(0,0,0,.18);overflow:hidden;font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
 @media(max-width:620px){.papel{padding:16px 12px}}
+.semana{margin:8px 0 4px;padding:14px 16px;border-radius:12px;background:var(--panel-2);border:1px solid var(--linea);border-left:5px solid var(--azul);display:flex;flex-direction:column;gap:2px}
+.semana small{font-size:12px;opacity:.7;letter-spacing:.04em;text-transform:uppercase}
+.semana b{font-size:22px;font-weight:700}
 .papel .enc{text-align:center;border-bottom:2px solid #15191f;padding-bottom:10px;margin-bottom:18px}
 .papel .enc h1{font-family:Fraunces,Georgia,serif;font-size:34px;font-weight:600;letter-spacing:.14em;margin:0;line-height:1.1}
 .papel .enc p{margin:4px 0 0;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#4a5560}
@@ -344,7 +348,7 @@ const OBLIG_DEF = {
   final:["titulo","cliente","responsable","antecedentes","objetivo","desarrollo","conclusiones","anexos"],
   supervision:["titulo","cliente","responsable","objetivo","desarrollo","conclusiones"],
   visita:["titulo","cliente","responsable","asistentes","objetivo","desarrollo","acuerdos"],
-  semanal:["titulo","responsable","objetivo","cumplimiento","resumen"]
+  semanal:["responsable","objetivo","cumplimiento","resumen"]
 };
 const CABECERA = {titulo:"Título del proyecto", cliente:"Cliente", responsable:"Responsable"};
 const TODAS_SECS = [...new Set(Object.values(TIPOS).flatMap(t=>t.secs))];
@@ -395,7 +399,15 @@ function obligatorios(){
   try{ const o=JSON.parse(localStorage.getItem("obligatorios")||"null"); if(o) return o; }catch(e){}
   return JSON.parse(JSON.stringify(OBLIG_DEF));
 }
-function req(){ return obligatorios()[doc.tipo]||[]; }
+function req(){ const r=obligatorios()[doc.tipo]||[];
+  return doc.tipo==="semanal"? r.filter(c=>c!=="titulo"&&c!=="cliente") : r; }
+/* Entregable semanal: la fecha elegida define la semana; el título del borrador se arma solo */
+function ajustaSemanal(){
+  if(doc.tipo!=="semanal") return;
+  const s=Exp.semana(doc.fecha); doc.titulo=s?"Entregable "+s.etiqueta.toLowerCase():"Entregable semanal";
+  doc.cliente=""; doc.codigo="";
+  const e=document.getElementById("semEtiqueta"); if(e) e.textContent=s?s.etiqueta:"Elige una fecha";
+}
 function secsDe(tipo){ return TIPOS[tipo].secs; }
 function rotulo(tipo,sec){ return (TIPOS[tipo].rot||{})[sec] || (sec==="cumplimiento"?"Cumplimiento":SEC[sec].t); }
 
@@ -596,6 +608,13 @@ function botonesPie(id){
 
 function vistaPortada(){
   const r=req(), ob=c=>r.indexOf(c)>=0?' <em>*</em>':'';
+  if(doc.tipo==="semanal"){ ajustaSemanal(); const sm=Exp.semana(doc.fecha);
+    return '<section class="hoja"><h2>Identificación</h2>'+
+    '<p class="pista">Quién entrega y de qué semana. Elige cualquier día de la semana y se calcula sola.</p>'+
+    '<label class="campo"><span>Responsable'+ob("responsable")+'</span><input type="text" data-campo="responsable" value="'+esc(doc.responsable)+'" placeholder="Nombre y apellido"></label>'+
+    '<label class="campo"><span>Fecha</span><input type="date" data-campo="fecha" value="'+esc(doc.fecha)+'"></label>'+
+    '<div class="semana" aria-live="polite"><small>Semana del informe</small><b id="semEtiqueta">'+esc(sm?sm.etiqueta:"Elige una fecha")+'</b></div>'+
+    botonesPie("portada")+'</section>'; }
   const v=doc.tipo==="visita";
   return '<section class="hoja"><h2>Identificación</h2>'+
   '<p class="pista">Datos de cabecera. El tipo elegido arriba define las secciones que siguen.</p>'+
@@ -815,7 +834,7 @@ function bajar(blob,nombre){
 
 function conectar(){
   const p=document.getElementById("panel");
-  p.querySelectorAll("[data-campo]").forEach(el=>el.oninput=()=>{doc[el.dataset.campo]=el.value;tocar()});
+  p.querySelectorAll("[data-campo]").forEach(el=>el.oninput=()=>{doc[el.dataset.campo]=el.value;ajustaSemanal();tocar()});
   p.querySelectorAll("[data-ir]").forEach(b=>b.onclick=()=>{seccionActiva=b.dataset.ir;render();scrollTo({top:0})});
   p.querySelectorAll("[name=est]").forEach(r=>r.onchange=()=>{doc.estadoSemana=r.value;tocar();render()});
   p.querySelectorAll("[data-txt]").forEach(t=>t.oninput=()=>{

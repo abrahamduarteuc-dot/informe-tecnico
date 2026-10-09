@@ -1,6 +1,6 @@
 /* Service worker: deja la app disponible sin conexión.
    No guarda datos de usuario; solo los archivos de la propia página. */
-const CACHE = "informe-v3";
+const CACHE = "informe-v4";
 
 /* lo imprescindible para abrir la app */
 const NUCLEO = [
