@@ -1,6 +1,6 @@
 /* Service worker: deja la app disponible sin conexión.
    No guarda datos de usuario; solo los archivos de la propia página. */
-const CACHE = "informe-v4";
+const CACHE = "informe-v6";
 
 /* lo imprescindible para abrir la app */
 const NUCLEO = [
@@ -20,10 +20,17 @@ const OPCIONAL = [
   "./jspdf.umd.min.js",
   "./jspdf.plugin.autotable.min.js",
   "./carlito-regular.ttf",
-  "./carlito-bold.ttf"
+  "./carlito-bold.ttf",
+  "./f-inter.woff2",
+  "./f-manrope.woff2",
+  "./f-nunito.woff2",
+  "./f-poppins-400.woff2",
+  "./f-poppins-500.woff2",
+  "./f-poppins-600.woff2",
+  "./f-poppins-700.woff2"
 ];
 const FUENTES_WEB = ["fonts.googleapis.com", "fonts.gstatic.com"];
-const ESTATICO = /\.(?:ttf|png)$|xlsx\.full\.min\.js$|docx\.min\.js$|jspdf[^/]*\.js$/;
+const ESTATICO = /\.(?:ttf|png|woff2)$|xlsx\.full\.min\.js$|docx\.min\.js$|jspdf[^/]*\.js$/;
 
 self.addEventListener("install", e => {
   e.waitUntil(
