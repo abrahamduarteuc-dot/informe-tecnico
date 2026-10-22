@@ -1,6 +1,6 @@
 /* Service worker: deja la app disponible sin conexión.
    No guarda datos de usuario; solo los archivos de la propia página. */
-const CACHE = "informe-v6";
+const CACHE = "informe-v7";
 
 /* lo imprescindible para abrir la app */
 const NUCLEO = [
@@ -27,7 +27,15 @@ const OPCIONAL = [
   "./f-poppins-400.woff2",
   "./f-poppins-500.woff2",
   "./f-poppins-600.woff2",
-  "./f-poppins-700.woff2"
+  "./f-poppins-700.woff2",
+  "./e-inter-regular.ttf",
+  "./e-inter-bold.ttf",
+  "./e-manrope-regular.ttf",
+  "./e-manrope-bold.ttf",
+  "./e-nunito-regular.ttf",
+  "./e-nunito-bold.ttf",
+  "./e-poppins-regular.ttf",
+  "./e-poppins-bold.ttf"
 ];
 const FUENTES_WEB = ["fonts.googleapis.com", "fonts.gstatic.com"];
 const ESTATICO = /\.(?:ttf|png|woff2)$|xlsx\.full\.min\.js$|docx\.min\.js$|jspdf[^/]*\.js$/;

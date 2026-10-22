@@ -10,7 +10,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
 <script>try{var R=document.documentElement,L=localStorage,f=L.getItem("fuente"),pa=L.getItem("paleta"),t=L.getItem("tema");
-if(f)R.setAttribute("data-fuente",f);if(pa)R.setAttribute("data-paleta",pa);if(t)R.setAttribute("data-theme",t);}catch(e){}</script>
+var iv=L.getItem("informe");if(iv==="clasico")R.setAttribute("data-informe",iv);if(f)R.setAttribute("data-fuente",f);if(pa)R.setAttribute("data-paleta",pa);if(t)R.setAttribute("data-theme",t);}catch(e){}</script>
 <style>
 @font-face{font-family:"Inter Variable";src:url(f-inter.woff2) format("woff2");font-weight:100 900;font-display:swap}
 @font-face{font-family:"Manrope Variable";src:url(f-manrope.woff2) format("woff2");font-weight:200 800;font-display:swap}
@@ -36,6 +36,14 @@ if(f)R.setAttribute("data-fuente",f);if(pa)R.setAttribute("data-paleta",pa);if(t
 :root[data-paleta="ambar"]{--h:34;--s:46%}
 :root[data-paleta="grafito"]{--h:220;--s:8%}
 :root[data-paleta="grafito"]{--azul:hsl(220 14% 27%);--azul-osc:hsl(220 14% 17%)}
+/* colores del informe (siempre sobre hoja clara; deben coincidir con exportar.js) */
+:root{--pa:#0B57A4;--pt:hsl(210 45% 95%);--pln:hsl(210 18% 82%);--pt2:hsl(210 45% 98.2%)}
+:root[data-paleta]{--pa:hsl(var(--h) 70% var(--pl,36%));--pt:hsl(var(--h) var(--pts,45%) 95%);--pln:hsl(var(--h) 18% 82%);--pt2:hsl(var(--h) var(--pts,45%) 98.2%)}
+:root[data-paleta="menta"]{--pl:30%}
+:root[data-paleta="violeta"]{--pl:42%}
+:root[data-paleta="coral"]{--pl:46%;--pts:44%}
+:root[data-paleta="ambar"]{--pl:38%;--pts:46%}
+:root[data-paleta="grafito"]{--pa:rgb(58 66 79);--pts:10%}
 :root{
   --azul:#0B57A4; --azul-osc:#07386b; --amarillo:#E8A80C; --verde:#3f7a2e;
   --tinta:#15191f; --tinta-2:#4a5560; --linea:#d8dee6;
@@ -169,6 +177,15 @@ table.datos td[contenteditable]:focus,table.datos th[contenteditable]:focus{outl
   .papel table.doc td.et{font-size:12px;padding:6px;overflow-wrap:normal;word-break:normal}
   .papel table.doc td.tit{font-size:12.5px;padding:6px 9px}
 }
+:root:not([data-informe="clasico"]) .papel{font-family:var(--fuente)}
+:root:not([data-informe="clasico"]) .papel .enc{border-bottom:3px solid var(--pa)}
+:root:not([data-informe="clasico"]) .papel .enc h1{font-family:var(--fuente);font-weight:700;font-size:30px;letter-spacing:.07em}
+:root:not([data-informe="clasico"]) .papel .enc p{color:var(--pa);font-weight:700;letter-spacing:.11em}
+:root:not([data-informe="clasico"]) .papel table.doc td,:root:not([data-informe="clasico"]) .papel table.datos td,:root:not([data-informe="clasico"]) .papel table.datos th{border-color:var(--pln)}
+:root:not([data-informe="clasico"]) .papel table.doc td.et{background:var(--pt);color:var(--pa);font-weight:700}
+:root:not([data-informe="clasico"]) .papel table.doc td.et.tit{background:var(--pa);color:#fff}
+:root:not([data-informe="clasico"]) .papel table.datos th{background:var(--pa);color:#fff}
+:root:not([data-informe="clasico"]) .papel table.datos tbody tr:nth-child(even) td{background:var(--pt2)}
 .papel .tx{white-space:pre-wrap;text-align:justify;margin:0 0 6px;overflow-wrap:anywhere}
 .papel .tx:last-child{margin-bottom:0}
 .papel .extra{color:#4a5560}
@@ -282,7 +299,6 @@ dialog::backdrop{background:rgba(8,12,20,.45);-webkit-backdrop-filter:blur(3px);
   .papel{-webkit-print-color-adjust:exact;print-color-adjust:exact;color:#15191f}
   .papel table.doc tr,.papel table.datos tr,.papel figure,.papel .enc{break-inside:avoid;page-break-inside:avoid}
   .papel table.datos thead{display:table-header-group}
-  .papel table.doc td.et{background:#eef1f5 !important}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none !important}}
 </style>
@@ -400,10 +416,11 @@ dialog::backdrop{background:rgba(8,12,20,.45);-webkit-backdrop-filter:blur(3px);
 <dialog id="dlgApariencia">
   <div class="dcab"><h3>Apariencia</h3><button class="btn mini" data-cerrar>Listo</button></div>
   <div class="dcuerpo">
-    <p class="pista" style="margin-bottom:6px">Cambia solo cómo se ve la app en este equipo. El informe, el Word y el PDF salen igual.</p>
+    <p class="pista" style="margin-bottom:6px">Cambia cómo se ve la app y el informe en este equipo. Con estilo Moderno, el PDF y el Word usan la letra y el color que elijas.</p>
     <h4 class="apt">Letra</h4><div class="opc-fuente" id="opcFuente" role="radiogroup" aria-label="Letra"></div>
     <h4 class="apt">Color</h4><div class="opc-color" id="opcColor" role="radiogroup" aria-label="Color"></div>
     <h4 class="apt">Modo</h4><div class="segm" id="opcModo" role="radiogroup" aria-label="Modo"></div>
+    <h4 class="apt">Informe (PDF y Word)</h4><div class="segm" id="opcInforme" role="radiogroup" aria-label="Estilo del informe"></div>
   </div>
   <div class="dpie"><button class="btn mini" id="btnAparReset">Restablecer</button></div>
 </dialog>
@@ -906,7 +923,8 @@ async function cargarLibs(f){
 }
 async function generar(f){
   const ir=Exp.construir(doc,CFG); await Exp.preparar(ir,CFG); await cargarLibs(f);
-  return f==="docx"?Exp.aDocx(ir):Exp.aPDF(ir,{base:""});
+  const o={base:"",estilo:{informe:lsGet("informe")||"moderno",fuente:lsGet("fuente")||"inter",paleta:lsGet("paleta")||"clasico"}};
+  return f==="docx"?Exp.aDocx(ir,o):Exp.aPDF(ir,o);
 }
 async function descargar(f){
   avisar(f==="pdf"?"Generando PDF…":"Generando Word…");
@@ -1071,6 +1089,7 @@ const FUENTES={inter:["Inter","Moderna"],manrope:["Manrope","Elegante"],nunito:[
 const PALETAS={clasico:["Clásico","#0B57A4"],menta:["Menta","hsl(162 72% 36%)"],violeta:["Violeta","hsl(262 72% 46%)"],
   coral:["Coral","hsl(10 78% 52%)"],ambar:["Ámbar","hsl(34 88% 46%)"],grafito:["Grafito","hsl(220 14% 27%)"]};
 const MODOS={auto:"Automático",light:"Claro",dark:"Oscuro"};
+const INFORMES={moderno:"Moderno",clasico:"Clásico"};
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}};
 function aplicaApariencia(){
@@ -1078,6 +1097,7 @@ function aplicaApariencia(){
   f&&f!=="inter"?r.setAttribute("data-fuente",f):r.removeAttribute("data-fuente");
   p&&p!=="clasico"?r.setAttribute("data-paleta",p):r.removeAttribute("data-paleta");
   t?r.setAttribute("data-theme",t):r.removeAttribute("data-theme");
+  lsGet("informe")==="clasico"?r.setAttribute("data-informe","clasico"):r.removeAttribute("data-informe");
   try{ const m=document.querySelector('meta[name="theme-color"]');
     if(m) m.content=getComputedStyle(document.body).backgroundColor; }catch(e){}
 }
@@ -1091,16 +1111,20 @@ function pintarApariencia(){
     '<button class="sw" role="radio" aria-checked="'+(k===p)+'" data-p="'+k+'"><i style="background:'+PALETAS[k][1]+'"></i><span>'+PALETAS[k][0]+'</span></button>').join("");
   document.getElementById("opcModo").innerHTML=Object.keys(MODOS).map(k=>
     '<button class="opc" role="radio" aria-checked="'+(k===t)+'" data-m="'+k+'"><b>'+MODOS[k]+'</b></button>').join("");
+  const iv=lsGet("informe")||"moderno";
+  document.getElementById("opcInforme").innerHTML=Object.keys(INFORMES).map(k=>
+    '<button class="opc" role="radio" aria-checked="'+(k===iv)+'" data-i="'+k+'"><b>'+INFORMES[k]+'</b></button>').join("");
 }
 document.getElementById("dlgApariencia").addEventListener("click",e=>{
-  const b=e.target.closest("[data-f],[data-p],[data-m]"); if(!b) return;
+  const b=e.target.closest("[data-f],[data-p],[data-m],[data-i]"); if(!b) return;
+  if(b.dataset.i) lsSet("informe",b.dataset.i==="moderno"?null:b.dataset.i);
   if(b.dataset.f) lsSet("fuente",b.dataset.f);
   if(b.dataset.p) lsSet("paleta",b.dataset.p);
   if(b.dataset.m) lsSet("tema",b.dataset.m==="auto"?null:b.dataset.m);
   aplicaApariencia(); pintarApariencia();
 });
 document.getElementById("btnApariencia").onclick=()=>{pintarApariencia();dlgApariencia.showModal()};
-document.getElementById("btnAparReset").onclick=()=>{["fuente","paleta","tema"].forEach(k=>lsSet(k,null));aplicaApariencia();pintarApariencia()};
+document.getElementById("btnAparReset").onclick=()=>{["fuente","paleta","tema","informe"].forEach(k=>lsSet(k,null));aplicaApariencia();pintarApariencia()};
 aplicaApariencia();
 document.querySelectorAll("[data-cerrar]").forEach(b=>b.onclick=()=>b.closest("dialog").close());
 document.querySelectorAll("dialog").forEach(d=>d.addEventListener("click",e=>{if(e.target===d)d.close()}));

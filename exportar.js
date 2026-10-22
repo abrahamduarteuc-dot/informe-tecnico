@@ -8,6 +8,29 @@
   var LIMITE_EN_LINEA = 100;   /* hasta cuántos caracteres un texto queda en la misma línea del título */
   var COLOR = { borde: "9AA6B3", sombra: "EEF1F5", tinta: "15191F", gris: "4A5560", rojo: "B3261E" };
 
+  /* ---- estilo del informe: "clasico" (el de siempre) o "moderno" (letra y color elegidos en Aa) ---- */
+  var FUENTES_EXP = { inter: "Inter", manrope: "Manrope", nunito: "Nunito", poppins: "Poppins" };
+  var PALETAS_EXP = {          /* h = tono; l = luminosidad del color fuerte; sat = saturación del tinte */
+    clasico: { h: 210, a: [11, 87, 164], sat: 45 }, menta: { h: 162, l: 30, sat: 45 }, violeta: { h: 262, l: 42, sat: 45 },
+    coral: { h: 10, l: 46, sat: 44 }, ambar: { h: 34, l: 38, sat: 46 }, grafito: { h: 220, a: [58, 66, 79], sat: 10 }
+  };
+  function hsl(h, s, l) {
+    s /= 100; l /= 100; var k = function (n) { return (n + h / 30) % 12; }, a = s * Math.min(l, 1 - l);
+    var f = function (n) { return Math.round(255 * (l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1))))); };
+    return [f(0), f(8), f(4)];
+  }
+  function hex(c) { return c.map(function (v) { return ("0" + v.toString(16)).slice(-2); }).join("").toUpperCase(); }
+  function estiloDe(o) {
+    o = o || {};
+    var p = PALETAS_EXP[o.paleta] || PALETAS_EXP.clasico, moderno = o.informe !== "clasico";
+    var acento = p.a || hsl(p.h, 70, p.l);
+    var E = { moderno: moderno, fuente: FUENTES_EXP[o.fuente] ? o.fuente : "inter" };
+    E.nombre = FUENTES_EXP[E.fuente];
+    E.acento = acento; E.tinte = hsl(p.h, p.sat, 95); E.tinte2 = hsl(p.h, p.sat, 98.2); E.linea = hsl(p.h, 18, 82);
+    E.acentoHex = hex(acento); E.tinteHex = hex(E.tinte); E.lineaHex = hex(E.linea);
+    return E;
+  }
+
   /* ---------------------------------------------------------------- utilidades */
   function fechaCL(i) { if (!i) return ""; var p = String(i).split("-"); return p.length === 3 ? p[2] + "-" + p[1] + "-" + p[0] : i; }
   /* Semana laboral (lunes a viernes) y número ISO de la fecha elegida (aaaa-mm-dd) */
@@ -198,17 +221,30 @@
   }
 
   /* ---------------------------------------------------------------- WORD (.docx) */
-  function aDocx(ir) {
+  function aDocx(ir, opts) {
+    opts = opts || {};
+    var E = estiloDe(opts.estilo);
+    if (!E.moderno) return aDocxCon(ir, E, null);
+    /* la letra viaja dentro del archivo, así se ve igual aunque el computador no la tenga */
+    return fetch((opts.base || "") + "e-" + E.fuente + "-regular.ttf")
+      .then(function (r) { if (!r.ok) throw new Error("sin letra"); return r.arrayBuffer(); })
+      .then(function (b) { return new Uint8Array(b); })
+      .catch(function () { return null; })
+      .then(function (bytes) { return aDocxCon(ir, E, bytes); });
+  }
+  function aDocxCon(ir, E, fontBytes) {
     var D = root.docx;
     if (!D) return Promise.reject(new Error("Falta la librería de Word"));
+    var M = E.moderno, FW = M ? E.nombre : "Calibri";
     var ANCHO = 9866, ETQ = 2400, MARG = 110;                 /* A4 con márgenes de 18 mm, en twips */
-    var linea = { style: D.BorderStyle.SINGLE, size: 4, color: COLOR.borde };
+    var linea = { style: D.BorderStyle.SINGLE, size: 4, color: M ? E.lineaHex : COLOR.borde };
     var bordes = { top: linea, bottom: linea, left: linea, right: linea };
-    var sombra = { type: D.ShadingType.CLEAR, fill: COLOR.sombra, color: "auto" };
+    var sombra = { type: D.ShadingType.CLEAR, fill: M ? E.tinteHex : COLOR.sombra, color: "auto" };
+    var sombraFuerte = { type: D.ShadingType.CLEAR, fill: M ? E.acentoHex : COLOR.sombra, color: "auto" };
 
     function run(t, o) {
       o = o || {};
-      return new D.TextRun({ text: t, size: Math.round((o.pt || 10) * 2), bold: !!o.bold, italics: !!o.italics, color: o.color, font: "Calibri", characterSpacing: o.sp });
+      return new D.TextRun({ text: t, size: Math.round((o.pt || 10) * 2), bold: !!o.bold, italics: !!o.italics, color: o.color, font: FW, characterSpacing: o.sp });
     }
     function parrafo(it) {
       if (vacio(it.txt) && !it.pend) return new D.Paragraph({ spacing: { after: 40 }, children: [run("", { pt: 5 })] });
@@ -224,9 +260,9 @@
       var ls = String(txt == null ? "" : txt).split(/\r?\n/);
       return new D.TableCell({
         width: { size: w, type: D.WidthType.DXA }, borders: bordes,
-        shading: enc ? sombra : undefined, verticalAlign: D.VerticalAlign.CENTER,
+        shading: enc ? (M ? sombraFuerte : sombra) : undefined, verticalAlign: D.VerticalAlign.CENTER,
         margins: { top: 30, bottom: 30, left: 70, right: 70 },
-        children: ls.map(function (l) { return new D.Paragraph({ alignment: D.AlignmentType.LEFT, children: [run(l, { pt: pt, bold: enc })] }); })
+        children: ls.map(function (l) { return new D.Paragraph({ alignment: D.AlignmentType.LEFT, children: [run(l, { pt: pt, bold: enc, color: enc && M ? "FFFFFF" : undefined })] }); })
       });
     }
     function tablaDocx(it, ancho) {
@@ -247,7 +283,7 @@
       var wpx = Math.round(maxPx * (it.ancho || 60) / 100), hpx = Math.round(wpx * it.h / it.w);
       if (hpx > 640) { wpx = Math.round(wpx * 640 / hpx); hpx = 640; }
       var hijos = [new D.ImageRun({ type: /png/.test(d.mime) ? "png" : "jpg", data: d.bytes, transformation: { width: wpx, height: hpx }, altText: { title: "Imagen", description: it.pie || "Imagen", name: "imagen" } })];
-      if (it.pie) hijos.push(new D.TextRun({ text: it.pie, break: 1, size: 16, color: COLOR.gris, font: "Calibri" }));
+      if (it.pie) hijos.push(new D.TextRun({ text: it.pie, break: 1, size: 16, color: COLOR.gris, font: FW }));
       return new D.Paragraph({ alignment: D.AlignmentType.CENTER, spacing: { before: 80, after: 100 }, children: hijos });
     }
     function contenido(items, ancho) {
@@ -263,10 +299,10 @@
     }
     function celda(w, hijos, o) {
       o = o || {};
-      return new D.TableCell({ width: { size: w, type: D.WidthType.DXA }, columnSpan: o.span, borders: bordes, shading: o.sombra ? sombra : undefined, verticalAlign: D.VerticalAlign.TOP, children: hijos });
+      return new D.TableCell({ width: { size: w, type: D.WidthType.DXA }, columnSpan: o.span, borders: bordes, shading: o.fuerte ? sombraFuerte : o.sombra ? sombra : undefined, verticalAlign: D.VerticalAlign.TOP, children: hijos });
     }
     function etiqueta(t, keep) {
-      return new D.Paragraph({ keepNext: !!keep, spacing: { after: 0 }, children: [run(t, { bold: true, pt: 9.5 })] });
+      return new D.Paragraph({ keepNext: !!keep, spacing: { after: 0 }, children: [run(t, { bold: true, pt: 9.5, color: M ? (keep ? "FFFFFF" : E.acentoHex) : undefined })] });
     }
 
     var filasT = [];
@@ -277,28 +313,29 @@
           celda(ANCHO - ETQ, contenido(f.items, ANCHO - ETQ - 2 * MARG - 20))
         ] }));
       } else {
-        filasT.push(new D.TableRow({ cantSplit: true, children: [celda(ANCHO, [etiqueta(f.label, true)], { span: 2, sombra: true })] }));
+        filasT.push(new D.TableRow({ cantSplit: true, children: [celda(ANCHO, [etiqueta(f.label, true)], { span: 2, sombra: true, fuerte: M })] }));
         filasT.push(new D.TableRow({ children: [celda(ANCHO, contenido(f.items, ANCHO - 2 * MARG - 20), { span: 2 })] }));
       }
     });
 
     var cuerpo = [
       new D.Paragraph({ alignment: D.AlignmentType.CENTER, spacing: { before: 0, after: 0 },
-        children: [new D.TextRun({ text: ir.titulo, font: "Georgia", bold: true, size: 52, characterSpacing: 120, color: COLOR.tinta })] }),
+        children: [new D.TextRun({ text: ir.titulo, font: M ? FW : "Georgia", bold: true, size: M ? 48 : 52, characterSpacing: M ? 80 : 120, color: COLOR.tinta })] }),
       new D.Paragraph({ alignment: D.AlignmentType.CENTER, spacing: { before: 20, after: 220 },
-        border: { bottom: { style: D.BorderStyle.SINGLE, size: 12, color: COLOR.tinta, space: 6 } },
-        children: [new D.TextRun({ text: ir.sub, font: "Calibri", size: 18, characterSpacing: 40, color: COLOR.gris })] }),
+        border: { bottom: { style: D.BorderStyle.SINGLE, size: M ? 18 : 12, color: M ? E.acentoHex : COLOR.tinta, space: 6 } },
+        children: [new D.TextRun({ text: ir.sub, font: FW, bold: M, size: 18, characterSpacing: M ? 60 : 40, color: M ? E.acentoHex : COLOR.gris })] }),
       new D.Table({ width: { size: ANCHO, type: D.WidthType.DXA }, columnWidths: [ETQ, ANCHO - ETQ], layout: D.TableLayoutType.FIXED,
         margins: { top: 70, bottom: 70, left: MARG, right: MARG }, rows: filasT })
     ];
 
     var documento = new D.Document({
       title: "Informe", creator: "Informe",
-      styles: { default: { document: { run: { font: "Calibri", size: 20 } } } },
+      fonts: (M && fontBytes) ? [{ name: E.nombre, data: fontBytes, characterSet: "00" }] : undefined,
+      styles: { default: { document: { run: { font: FW, size: 20 } } } },
       sections: [{
         properties: { page: { size: { width: 11906, height: 16838 }, margin: { top: 1000, bottom: 1000, left: 1020, right: 1020, footer: 500 } } },
         footers: { default: new D.Footer({ children: [new D.Paragraph({ alignment: D.AlignmentType.CENTER,
-          children: [new D.TextRun({ children: [D.PageNumber.CURRENT, " / ", D.PageNumber.TOTAL_PAGES], size: 16, color: "7A8794", font: "Calibri" })] })] }) },
+          children: [new D.TextRun({ children: [D.PageNumber.CURRENT, " / ", D.PageNumber.TOTAL_PAGES], size: 16, color: "7A8794", font: FW })] })] }) },
         children: cuerpo
       }]
     });
@@ -307,32 +344,38 @@
 
   /* ---------------------------------------------------------------- PDF */
   var cacheFuentes = null;
-  function cargarFuentes(base) {
-    if (cacheFuentes) return Promise.resolve(cacheFuentes);
+  function cargarFuentes(base, E) {
+    var clave = E.moderno ? E.fuente : "carlito";
+    cacheFuentes = cacheFuentes || {};
+    if (cacheFuentes[clave]) return Promise.resolve(cacheFuentes[clave]);
     function bajar(u) { return fetch(base + u).then(function (r) { if (!r.ok) throw new Error("No se encontró " + u); return r.arrayBuffer(); }).then(bytesABase64); }
-    return Promise.all([bajar("carlito-regular.ttf"), bajar("carlito-bold.ttf")]).then(function (r) { cacheFuentes = r; return r; });
+    var u = E.moderno ? ["e-" + E.fuente + "-regular.ttf", "e-" + E.fuente + "-bold.ttf"] : ["carlito-regular.ttf", "carlito-bold.ttf"];
+    return Promise.all([bajar(u[0]), bajar(u[1])]).then(function (r) { cacheFuentes[clave] = r; return r; });
   }
 
   function aPDF(ir, opts) {
     opts = opts || {};
     var J = root.jspdf && root.jspdf.jsPDF;
     if (!J) return Promise.reject(new Error("Falta la librería de PDF"));
-    return cargarFuentes(opts.base || "").then(function (f) {
+    var E = estiloDe(opts.estilo), fam = E.moderno ? E.nombre : "Carlito";
+    return cargarFuentes(opts.base || "", E).then(function (f) {
       var pdf = new J({ unit: "mm", format: "a4", compress: true });
-      pdf.addFileToVFS("Carlito-Regular.ttf", f[0]); pdf.addFont("Carlito-Regular.ttf", "Carlito", "normal");
-      pdf.addFileToVFS("Carlito-Bold.ttf", f[1]); pdf.addFont("Carlito-Bold.ttf", "Carlito", "bold");
-      return dibujarPDF(pdf, ir);
+      pdf.addFileToVFS(fam + "-Regular.ttf", f[0]); pdf.addFont(fam + "-Regular.ttf", fam, "normal");
+      pdf.addFileToVFS(fam + "-Bold.ttf", f[1]); pdf.addFont(fam + "-Bold.ttf", fam, "bold");
+      return dibujarPDF(pdf, ir, E);
     });
   }
 
-  function dibujarPDF(pdf, ir) {
+  function dibujarPDF(pdf, ir, E) {
     var W = 210, H = 297, L = 18, AN = 174, TOP = 16, BOT = H - 18;
     var ETQ = 42, PX = 2.6, PY = 2;
     var NEGRO = [21, 25, 31], GRIS = [74, 85, 96], ROJO = [179, 38, 30], BORDE = [154, 166, 179], SOMBRA = [238, 241, 245];
+    var M = E.moderno, FAM = M ? E.nombre : "Carlito", ACENTO = E.acento, BLANCO = [255, 255, 255];
+    if (M) { BORDE = E.linea; SOMBRA = E.tinte; }
     var y = TOP, segTop = 0;
 
     function lh(pt) { return pt * 0.3528 * 1.27; }
-    function fuente(estilo, pt, color) { pdf.setFont("Carlito", estilo); pdf.setFontSize(pt); var c = color || NEGRO; pdf.setTextColor(c[0], c[1], c[2]); }
+    function fuente(estilo, pt, color) { pdf.setFont(FAM, estilo); pdf.setFontSize(pt); var c = color || NEGRO; pdf.setTextColor(c[0], c[1], c[2]); }
     function trazo() { pdf.setDrawColor(BORDE[0], BORDE[1], BORDE[2]); pdf.setLineWidth(0.2); }
     function lados(desde, hasta, cierre) {
       trazo(); pdf.line(L, desde, L, hasta); pdf.line(L + AN, desde, L + AN, hasta);
@@ -408,8 +451,9 @@
       pdf.autoTable({
         startY: y, head: head, body: body, theme: "grid", tableWidth: iw, showHead: "everyPage", rowPageBreak: "avoid",
         margin: { left: x, right: W - (x + iw), top: TOP + 1, bottom: H - BOT },
-        styles: { font: "Carlito", fontSize: pt, cellPadding: { top: 1, bottom: 1, left: 1.2, right: 1.2 }, lineColor: BORDE, lineWidth: 0.2, textColor: NEGRO, overflow: "linebreak", valign: "middle" },
-        headStyles: { fillColor: SOMBRA, textColor: NEGRO, fontStyle: "bold", halign: "left" },
+        styles: { font: FAM, fontSize: pt, cellPadding: { top: 1, bottom: 1, left: 1.2, right: 1.2 }, lineColor: BORDE, lineWidth: 0.2, textColor: NEGRO, overflow: "linebreak", valign: "middle" },
+        headStyles: M ? { fillColor: ACENTO, textColor: BLANCO, fontStyle: "bold", halign: "left" } : { fillColor: SOMBRA, textColor: NEGRO, fontStyle: "bold", halign: "left" },
+        alternateRowStyles: M ? { fillColor: E.tinte2 } : undefined,
         columnStyles: cs,
         didDrawPage: function (d) { tramos.push({ n: d.pageNumber, y: d.cursor && d.cursor.y ? d.cursor.y : BOT }); }
       });
@@ -437,12 +481,20 @@
     }
 
     /* ================= encabezado ================= */
-    pdf.setFont("times", "bold"); pdf.setFontSize(27); pdf.setTextColor(NEGRO[0], NEGRO[1], NEGRO[2]);
-    pdf.text(ir.titulo, W / 2, y + 8, { align: "center", charSpace: 2.4 });
-    y += 12;
-    fuente("normal", 9, GRIS); pdf.text(ir.sub, W / 2, y + 2.5, { align: "center", charSpace: 0.9 });
-    y += 6.5;
-    pdf.setDrawColor(NEGRO[0], NEGRO[1], NEGRO[2]); pdf.setLineWidth(0.6); pdf.line(L, y, L + AN, y);
+    if (M) {
+      fuente("bold", 25, NEGRO); pdf.text(ir.titulo, W / 2, y + 8, { align: "center", charSpace: 1.6 });
+      y += 12;
+      fuente("bold", 9, ACENTO); pdf.text(ir.sub, W / 2, y + 2.5, { align: "center", charSpace: 1.1 });
+      y += 6.5;
+      pdf.setDrawColor(ACENTO[0], ACENTO[1], ACENTO[2]); pdf.setLineWidth(0.9); pdf.line(L, y, L + AN, y);
+    } else {
+      pdf.setFont("times", "bold"); pdf.setFontSize(27); pdf.setTextColor(NEGRO[0], NEGRO[1], NEGRO[2]);
+      pdf.text(ir.titulo, W / 2, y + 8, { align: "center", charSpace: 2.4 });
+      y += 12;
+      fuente("normal", 9, GRIS); pdf.text(ir.sub, W / 2, y + 2.5, { align: "center", charSpace: 0.9 });
+      y += 6.5;
+      pdf.setDrawColor(NEGRO[0], NEGRO[1], NEGRO[2]); pdf.setLineWidth(0.6); pdf.line(L, y, L + AN, y);
+    }
     y += 5;
 
     /* ================= filas ================= */
@@ -455,7 +507,7 @@
         if (!hayEspacio(h)) pagina(false);
         trazo(); pdf.setFillColor(SOMBRA[0], SOMBRA[1], SOMBRA[2]);
         pdf.rect(L, y, ETQ, h, "FD"); pdf.rect(L + ETQ, y, AN - ETQ, h, "S");
-        fuente("bold", 9.5); ll.forEach(function (s, i) { pdf.text(s, L + PX, y + PY + 0.3 + lh(9.5) * (i + 0.76)); });
+        fuente("bold", 9.5, M ? ACENTO : NEGRO); ll.forEach(function (s, i) { pdf.text(s, L + PX, y + PY + 0.3 + lh(9.5) * (i + 0.76)); });
         fuente("normal", 10, it.pend ? ROJO : NEGRO);
         tl.forEach(function (s, i) { pdf.text(s, L + ETQ + PX, y + PY + 0.3 + lh(10) * (i + 0.76)); });
         y += h;
@@ -463,8 +515,10 @@
       }
       var iw = AN - 2 * PX, x0 = L + PX, BANDA = 7;
       if (!hayEspacio(BANDA + primerBloque(f.items, iw))) pagina(false);
-      trazo(); pdf.setFillColor(SOMBRA[0], SOMBRA[1], SOMBRA[2]); pdf.rect(L, y, AN, BANDA, "FD");
-      fuente("bold", 9.5); pdf.text(f.label, L + PX, y + BANDA / 2 + 1.25);
+      trazo(); pdf.setFillColor(SOMBRA[0], SOMBRA[1], SOMBRA[2]);
+      if (M) { pdf.setFillColor(ACENTO[0], ACENTO[1], ACENTO[2]); pdf.setDrawColor(ACENTO[0], ACENTO[1], ACENTO[2]); }
+      pdf.rect(L, y, AN, BANDA, "FD");
+      fuente("bold", 9.5, M ? BLANCO : NEGRO); pdf.text(f.label, L + PX, y + BANDA / 2 + 1.25);
       y += BANDA; segTop = y; y += PY;
       f.items.forEach(function (it) { dibujarItem(it, x0, iw, true); });
       y += PY - 0.6;
@@ -482,7 +536,7 @@
 
   root.Exp = {
     construir: construir, preparar: preparar, aDocx: aDocx, aPDF: aPDF,
-    nombreBase: nombreBase, semana: semana, modoDe: modoDe, LIMITE_EN_LINEA: LIMITE_EN_LINEA,
+    nombreBase: nombreBase, semana: semana, estiloDe: estiloDe, modoDe: modoDe, LIMITE_EN_LINEA: LIMITE_EN_LINEA,
     util: { dataURLaBytes: dataURLaBytes, cargarImagen: cargarImagen, svgAPng: svgAPng, repartir: repartir, pesosColumnas: pesosColumnas }
   };
 })(typeof window !== "undefined" ? window : globalThis);
