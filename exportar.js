@@ -176,6 +176,7 @@
     filas.push({ label: "Fecha", campo: true, items: [{ t: "p", txt: sem ? sem.etiqueta : fechaCL(doc.fecha) }] });
 
     cfg.secsDe(doc.tipo).forEach(function (s) {
+      if (cfg.visible && !cfg.visible(s)) return;   /* sección que no corresponde: no sale en el informe */
       var label = cfg.rotulo(doc.tipo, s);
       if (s === "cumplimiento") {
         var et = { cumplido: "Se cumplió", parcial: "Se cumplió en parte", no: "No se cumplió" }[doc.estadoSemana];

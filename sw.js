@@ -1,13 +1,13 @@
 /* Service worker: deja la app disponible sin conexión.
    No guarda datos de usuario; solo los archivos de la propia página. */
-const CACHE = "informe-v10";
+const CACHE = "informe-v11";
 
 /* lo imprescindible para abrir la app */
 const NUCLEO = [
   "./",
   "./index.html",
-  "./exportar.js?v=10",
-  "./prompts.js?v=10",
+  "./exportar.js?v=11",
+  "./prompts.js?v=11",
   "./manifest.webmanifest",
   "./icon-192.png",
   "./icon-512.png"
