@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>No importa</title>
+<title>Informes I+D</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="No importa">
 <meta name="theme-color" content="#0B57A4">
@@ -186,6 +186,7 @@ table.datos td[contenteditable]:focus,table.datos th[contenteditable]:focus{outl
 :root:not([data-informe="clasico"]) .papel table.doc td.et.tit{background:var(--pa);color:#fff}
 :root:not([data-informe="clasico"]) .papel table.datos th{background:var(--pa);color:#fff}
 :root:not([data-informe="clasico"]) .papel table.datos tbody tr:nth-child(even) td{background:var(--pt2)}
+.papel table.datos td{white-space:pre-line}
 .papel .tx{white-space:pre-wrap;text-align:justify;margin:0 0 6px;overflow-wrap:anywhere}
 .papel .tx:last-child{margin-bottom:0}
 .papel .extra{color:#4a5560}
@@ -287,7 +288,55 @@ dialog::backdrop{background:rgba(8,12,20,.45);-webkit-backdrop-filter:blur(3px);
 .segm .opc{flex:1;min-width:90px;align-items:center;padding:9px 10px}
 .segm .opc b{font-size:14px}
 
-@media(max-width:520px){.barra{gap:8px 6px;padding:8px 12px}.estado{font-size:11px}.barra .btn.mini{padding:6px 10px}}
+/* calendario semanal (Trabajo realizado) */
+.cal-chips{display:flex;gap:7px;margin:2px 0 10px}
+.cal-chips .d{flex:1;position:relative;border:1.5px dashed color-mix(in srgb,var(--alerta) 40%,var(--linea));background:color-mix(in srgb,var(--alerta) 5%,var(--panel));
+  border-radius:14px;padding:8px 0 7px;text-align:center;font-size:12px;color:var(--tinta-2);cursor:pointer;min-height:58px;transition:transform .12s,background .15s}
+.cal-chips .d b{display:block;font-size:19px;line-height:1.15;color:var(--tinta);font-weight:700}
+.cal-chips .d i{position:absolute;top:3px;right:6px;font-style:normal;font-size:9.5px;font-weight:700;color:var(--tinta-2)}
+.cal-chips .d.ok{border:1.5px solid color-mix(in srgb,var(--verde) 55%,var(--linea));background:color-mix(in srgb,var(--verde) 11%,var(--panel))}
+.cal-chips .d.libre{border:1.5px solid var(--linea);background:var(--panel-2)}
+.cal-chips .d.sel{background:var(--azul);border:1.5px solid var(--azul);color:color-mix(in srgb,var(--sobre-azul) 80%,transparent);box-shadow:0 8px 18px -8px var(--azul)}
+.cal-chips .d.sel b,.cal-chips .d.sel i{color:var(--sobre-azul)}
+.cal-estado{font-size:12.5px;font-weight:600;padding:0 2px 2px;color:var(--alerta)}
+.cal-estado.ok{color:var(--verde)}
+.cal-card{border:1px solid var(--linea);border-radius:16px;background:var(--panel-2);padding:12px;margin-top:8px}
+.cal-card > header{display:flex;align-items:center;gap:6px;margin-bottom:10px}
+.cal-card > header b{flex:1;font-size:17px}
+.tramo{position:relative;border:1px solid var(--linea);border-left:5px solid var(--tc);border-radius:12px;background:var(--panel);margin-bottom:9px}
+.tramo.t0{--tc:var(--azul)}.tramo.t1{--tc:var(--verde)}.tramo.t2{--tc:var(--amarillo)}.tramo.t3{--tc:#8b6bd6}
+.tramo textarea{border:0;background:transparent;min-height:56px;resize:none;overflow:hidden;line-height:1.45;padding:11px 38px 11px 11px;border-radius:12px}
+.tramo textarea:focus{outline:none;box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--tc) 55%,transparent)}
+.tramo-x{position:absolute;top:6px;right:6px;width:28px;height:28px;border-radius:50%;border:0;background:transparent;color:var(--tinta-2);font-size:20px;line-height:1;cursor:pointer}
+.tramo-x:hover{background:var(--panel-2);color:var(--alerta)}
+.cal-mas{display:block;width:100%;border:1.5px dashed var(--linea);background:transparent;border-radius:12px;padding:6px 0;font-size:24px;line-height:1.2;color:var(--azul);cursor:pointer;margin-bottom:12px}
+.cal-mas:hover{border-color:var(--azul);background:color-mix(in srgb,var(--azul) 7%,transparent)}
+.cal-op small{display:block;color:var(--tinta-2);font-size:12.5px;margin-bottom:6px}
+.cal-op div{display:flex;gap:7px;flex-wrap:wrap}
+.cal-libre{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:var(--panel);border:1px dashed var(--linea)}
+.cal-libre b{flex:1;font-size:16px}
+details.extras{margin-top:14px;border-top:1px solid var(--linea);padding-top:10px}
+details.extras > summary{cursor:pointer;color:var(--tinta-2);font-size:13.5px;font-weight:600;list-style:none}
+details.extras > summary::before{content:"+ ";color:var(--azul)}details.extras[open] > summary::before{content:"– "}
+/* selector de semana (solo lunes a viernes) */
+.semsel{display:flex;gap:8px}
+.semsel .btn{min-width:50px;font-size:22px;padding:0}
+.semsel-c{flex:1;border:1px solid var(--linea);background:var(--panel-2);border-radius:14px;padding:10px 8px;text-align:center;cursor:pointer;display:flex;flex-direction:column;gap:1px}
+.semsel-c b{font-size:20px}.semsel-c small{color:var(--tinta-2);font-size:13px}
+.semsel-c:hover{border-color:var(--azul)}
+#dlgSemana{width:min(360px,calc(100vw - 24px))}
+#dlgSemana .dcab .btn{min-width:40px}
+.sg-h,.sg-f{display:grid;grid-template-columns:repeat(5,1fr);text-align:center}
+.sg-h span{font-size:11.5px;font-weight:700;color:var(--tinta-2);padding:4px 0 8px;letter-spacing:.04em;text-transform:uppercase}
+.sg-f{width:100%;border:0;background:transparent;border-radius:12px;padding:3px 0;margin-bottom:3px;cursor:pointer;color:var(--tinta)}
+.sg-f span{padding:9px 0;font-size:15px;font-weight:600}
+.sg-f span.fuera{opacity:.32;font-weight:500}
+.sg-f span.hoy{color:var(--azul);text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:2px}
+.sg-f:hover{background:var(--panel-2)}
+.sg-f.sel{background:var(--azul);color:var(--sobre-azul)}.sg-f.sel span.hoy{color:var(--sobre-azul)}
+.barra .marca{display:inline-flex;align-items:center;gap:8px}
+.barra .marca svg{width:36px;height:36px;flex:none;border-radius:11px}
+@media(max-width:520px){.barra{gap:8px 6px;padding:8px 12px}.estado{font-size:11px}.barra .btn.mini{padding:6px 10px}.barra .marca{font-size:17px}#selTipo{min-width:150px !important}}
 @page{size:A4;margin:14mm}
 @media print{
   .barra,.ruta,.no-print{display:none !important}
@@ -306,7 +355,15 @@ dialog::backdrop{background:rgba(8,12,20,.45);-webkit-backdrop-filter:blur(3px);
 <body>
 
 <header class="barra">
-  <span class="marca">No importa</span>
+  <span class="marca"><svg viewBox="0 0 48 48" role="img" aria-label="Informes I+D"><rect width="48" height="48" fill="var(--azul)"/>
+    <path d="M12.5 35c0-9 5-12.5 11.5-12.5S35.5 26 35.5 35z" fill="#E8A80C"/>
+    <circle cx="24" cy="15.5" r="7.6" fill="#FFD7B0"/>
+    <path d="M16.2 14.6c.6-5.2 4.2-7.7 8.2-7.7 4.3 0 7.4 2.8 7.5 7.6-2.5-2.4-5.6-3-8-1.7-2.3-1.2-5.1-.9-7.7 1.8z" fill="#3b2a20"/>
+    <circle cx="21.2" cy="16.4" r="1" fill="#3b2a20"/><circle cx="26.8" cy="16.4" r="1" fill="#3b2a20"/>
+    <path d="M21.6 19.6q2.4 1.9 4.8 0" fill="none" stroke="#3b2a20" stroke-width="1.1" stroke-linecap="round"/>
+    <rect x="10" y="28.5" width="28" height="13.5" rx="2.6" fill="#f6f8fb"/>
+    <rect x="14.2" y="34.5" width="3.4" height="4.6" rx=".8" fill="#0B57A4"/><rect x="19.4" y="32" width="3.4" height="7.1" rx=".8" fill="#3f7a2e"/><rect x="24.6" y="35.6" width="3.4" height="3.5" rx=".8" fill="#E8A80C"/><rect x="29.8" y="31" width="3.4" height="8.1" rx=".8" fill="#0B57A4"/>
+    <rect x="6" y="41.5" width="36" height="3.4" rx="1.7" fill="#cfd8e3"/></svg>Informes I+D</span>
   <select id="selTipo" aria-label="Tipo de informe" style="width:auto;min-width:200px;flex:1;max-width:280px"></select>
   <span class="sep"></span>
   <span class="estado" id="estado">Cargando…</span>
@@ -425,6 +482,11 @@ dialog::backdrop{background:rgba(8,12,20,.45);-webkit-backdrop-filter:blur(3px);
   <div class="dpie"><button class="btn mini" id="btnAparReset">Restablecer</button></div>
 </dialog>
 
+<dialog id="dlgSemana">
+  <div class="dcab"><h3 id="semMes"></h3><button class="btn mini" data-smes="-1" aria-label="Mes anterior">‹</button><button class="btn mini" data-smes="1" aria-label="Mes siguiente">›</button></div>
+  <div class="dcuerpo" style="padding-bottom:18px"><div id="semGrid"></div></div>
+</dialog>
+
 <dialog id="dlgAyuda">
   <div class="dcab"><h3>Cómo funciona</h3><button class="btn mini" data-cerrar>Cerrar</button></div>
   <div class="dcuerpo ayuda" id="textoAyuda"></div>
@@ -518,7 +580,8 @@ function ajustaSemanal(){
   if(doc.tipo!=="semanal") return;
   const s=Exp.semana(doc.fecha); doc.titulo=s?"Entregable "+s.etiqueta.toLowerCase():"Entregable semanal";
   doc.cliente=""; doc.codigo="";
-  const e=document.getElementById("semEtiqueta"); if(e) e.textContent=s?s.etiqueta:"Elige una fecha";
+  const e=document.getElementById("semEtiqueta"), r=document.getElementById("semRango");
+  if(e) e.textContent=s?"Semana "+s.n:"Elige una semana"; if(r) r.textContent=s?s.ini+" – "+s.fin:"";
 }
 function secsDe(tipo){ return TIPOS[tipo].secs; }
 function rotulo(tipo,sec){ return (TIPOS[tipo].rot||{})[sec] || (sec==="cumplimiento"?"Cumplimiento":SEC[sec].t); }
@@ -679,6 +742,7 @@ function graficoSVG(b){
 function pasos(){ return ["portada"].concat(secsDe(doc.tipo),["revisar"]); }
 function campoLleno(c){
   if(c==="cumplimiento") return !!doc.estadoSemana;
+  if(c==="resumen"&&doc.tipo==="semanal"&&Array.isArray(doc.dias)) return diasFaltan().length===0;
   if(BLOQUES_SECS.indexOf(c)>=0) return (doc[c]||[]).some(b=>b.tipo!=="texto"||(b.txt||"").trim());
   return String(doc[c]||"").trim()!=="";
 }
@@ -720,12 +784,13 @@ function botonesPie(id){
 
 function vistaPortada(){
   const r=req(), ob=c=>r.indexOf(c)>=0?' <em>*</em>':'';
-  if(doc.tipo==="semanal"){ ajustaSemanal(); const sm=Exp.semana(doc.fecha);
+  if(doc.tipo==="semanal"){ doc.fecha=lunesDe(doc.fecha); ajustaSemanal(); const sm=Exp.semana(doc.fecha);
     return '<section class="hoja"><h2>Identificación</h2>'+
-    '<p class="pista">Quién entrega y de qué semana. Elige cualquier día de la semana y se calcula sola.</p>'+
     '<label class="campo"><span>Responsable'+ob("responsable")+'</span><input type="text" data-campo="responsable" value="'+esc(doc.responsable)+'" placeholder="Nombre y apellido"></label>'+
-    '<label class="campo"><span>Fecha</span><input type="date" data-campo="fecha" value="'+esc(doc.fecha)+'"></label>'+
-    '<div class="semana" aria-live="polite"><small>Semana del informe</small><b id="semEtiqueta">'+esc(sm?sm.etiqueta:"Elige una fecha")+'</b></div>'+
+    '<div class="campo"><span style="display:block;font-size:13.5px;font-weight:500;margin-bottom:5px">Semana</span><div class="semsel">'+
+      '<button class="btn" data-sem="-1" aria-label="Semana anterior">‹</button>'+
+      '<button class="semsel-c" id="semAbrir" aria-label="Elegir otra semana"><b id="semEtiqueta">Semana '+(sm?sm.n:"")+'</b><small id="semRango">'+(sm?sm.ini+" – "+sm.fin:"")+'</small></button>'+
+      '<button class="btn" data-sem="1" aria-label="Semana siguiente">›</button></div></div>'+
     botonesPie("portada")+'</section>'; }
   const v=doc.tipo==="visita";
   return '<section class="hoja"><h2>Identificación</h2>'+
@@ -753,11 +818,117 @@ function vistaCumplimiento(){
   botonesPie("cumplimiento")+'</section>';
 }
 
+/* ---- calendario semanal: Trabajo realizado del Entregable Semanal ---- */
+let diaSel=-1, calDocId=null;
+const MAXT=4, DS=()=>Exp.diasSemana(doc.fecha)||[];
+function asegDias(){
+  if(!Array.isArray(doc.dias)||doc.dias.length!==5) doc.dias=[0,1,2,3,4].map(()=>({libre:"",t:[""]}));
+  doc.dias.forEach(d=>{
+    d.libre=d.libre||""; let t=Array.isArray(d.t)?d.t.slice(0,MAXT):[];
+    if(d.n!==undefined){ delete d.n; while(t.length>1&&!(t[t.length-1]||"").trim()) t.pop(); }   /* versión anterior: Mañana/Tarde */
+    d.t=t.length?t:[""];
+  });
+  return doc.dias;
+}
+const diaLleno=d=>!!(d.libre||d.t.some(x=>(x||"").trim()));
+function diasFaltan(){ return asegDias().map((d,i)=>diaLleno(d)?-1:i).filter(i=>i>=0); }
+const rotDia=i=>{ const f=DS()[i]; return f?f.corto+" "+f.dd:"Día "+(i+1); };
+function calChips(){
+  const dias=asegDias(), ds=DS();
+  return dias.map((d,i)=>{ const f=ds[i]||{corto:"",dd:""}, est=d.libre?"libre":diaLleno(d)?"ok":"";
+    return '<button class="d '+est+(i===diaSel?" sel":"")+'" data-dia="'+i+'" aria-pressed="'+(i===diaSel)+'">'+(d.libre?'<i>libre</i>':'')+f.corto+'<b>'+f.dd+'</b></button>';
+  }).join("");
+}
+function calAviso(){
+  const f=diasFaltan();
+  return f.length? '<div class="cal-estado">Falta: '+f.map(rotDia).join(" · ")+'</div>' : '<div class="cal-estado ok">Semana completa ✓</div>';
+}
+function calDia(){
+  const d=asegDias()[diaSel], f=DS()[diaSel]||{nombre:"Día",dd:"",mm:""};
+  let cuerpo;
+  if(d.libre){
+    cuerpo='<div class="cal-libre"><b>'+esc(d.libre)+'</b><button class="btn mini" data-libre="">Quitar</button></div>';
+  }else{
+    cuerpo=d.t.map((x,i)=>'<div class="tramo t'+i+'"><textarea data-tr="'+i+'" rows="2" placeholder="Qué hiciste" aria-label="Actividad '+(i+1)+'">'+esc(x||"")+'</textarea>'+
+      (d.t.length>1?'<button class="tramo-x" data-quitar="'+i+'" aria-label="Quitar esta actividad">×</button>':"")+'</div>').join("")+
+    (d.t.length<MAXT?'<button class="cal-mas" data-mas aria-label="Agregar otra actividad">+</button>':"")+
+    '<div class="cal-op"><small>¿Día sin actividad?</small><div>'+
+      [["Feriado","Feriado"],["Vacaciones","Vacaciones"],["Permiso","Permiso"],["Otro","Sin actividad"]].map(m=>'<button class="btn mini" data-libre="'+m[1]+'">'+m[0]+'</button>').join("")+'</div></div>';
+  }
+  return '<div class="cal-card"><header><b>'+f.nombre+' '+f.dd+'/'+f.mm+'</b>'+
+    '<button class="btn mini" data-nav="-1" aria-label="Día anterior"'+(diaSel===0?" disabled":"")+'>‹</button>'+
+    '<button class="btn mini" data-nav="1" aria-label="Día siguiente"'+(diaSel===4?" disabled":"")+'>›</button></header>'+cuerpo+'</div>';
+}
+function vistaCalendario(){
+  const ds=DS(); asegDias();
+  if(calDocId!==doc.id){ diaSel=-1; calDocId=doc.id; }
+  if(diaSel<0||diaSel>4){
+    const hoy=isoHoy(), ih=ds.findIndex(x=>x.iso===hoy), fa=diasFaltan();
+    diaSel = ih>=0 ? ih : fa.length ? fa[0] : 0;
+  }
+  return '<div class="cal" id="cal"><div class="cal-chips" id="calChips">'+calChips()+'</div><div id="calAviso">'+calAviso()+'</div><div id="calDia">'+calDia()+'</div></div>';
+}
+function isoHoy(){ const h=new Date(); return h.getFullYear()+"-"+("0"+(h.getMonth()+1)).slice(-2)+"-"+("0"+h.getDate()).slice(-2); }
+function calPintar(todo){
+  document.getElementById("calChips").innerHTML=calChips(); document.getElementById("calAviso").innerHTML=calAviso();
+  if(todo){ document.getElementById("calDia").innerHTML=calDia(); calAlto(); }
+  pintarNav();
+}
+function calAlto(){ document.querySelectorAll("#cal textarea").forEach(t=>{ t.style.height="auto"; t.style.height=Math.max(56,t.scrollHeight+2)+"px"; }); }
+function conectarCal(){
+  const c=document.getElementById("cal"); if(!c) return;
+  c.onclick=async e=>{
+    const b=e.target.closest("button"); if(!b||b.disabled) return; const dias=asegDias();
+    if(b.dataset.dia!==undefined){ diaSel=+b.dataset.dia; calPintar(true); }
+    else if(b.dataset.nav){ diaSel=Math.max(0,Math.min(4,diaSel+(+b.dataset.nav))); calPintar(true); }
+    else if(b.dataset.libre!==undefined){ dias[diaSel].libre=b.dataset.libre; tocar(); calPintar(true); }
+    else if(b.dataset.mas!==undefined){
+      if(dias[diaSel].t.length<MAXT){ dias[diaSel].t.push(""); tocar(); calPintar(true);
+        const ta=c.querySelectorAll("textarea"); ta[ta.length-1].focus(); }
+    }
+    else if(b.dataset.quitar!==undefined){
+      const i=+b.dataset.quitar, d=dias[diaSel];
+      if((d.t[i]||"").trim()&&!await preguntar("Se borra el texto de esta actividad.","Quitar actividad","Quitar")) return;
+      d.t.splice(i,1); if(!d.t.length) d.t=[""]; tocar(); calPintar(true);
+    }
+  };
+  c.oninput=e=>{
+    const t=e.target.closest("textarea[data-tr]"); if(!t) return;
+    asegDias()[diaSel].t[+t.dataset.tr]=t.value; t.style.height="auto"; t.style.height=Math.max(56,t.scrollHeight+2)+"px";
+    tocar(); calPintar(false);
+  };
+  calAlto();
+}
+
+/* ---- selector de semana: solo lunes a viernes ---- */
+const MESES=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+let semVista=null;
+const isoDe=d=>d.toISOString().slice(0,10);
+function lunesDe(iso){ const ds=Exp.diasSemana(iso||isoHoy()); return ds?ds[0].iso:isoHoy(); }
+function fijarSemana(iso){ doc.fecha=iso; diaSel=-1; ajustaSemanal(); tocar(); }
+function moverSemana(k){ const d=new Date(lunesDe(doc.fecha)+"T00:00:00Z"); d.setUTCDate(d.getUTCDate()+7*k); fijarSemana(isoDe(d)); }
+function pintarSemGrid(){
+  const {y,m}=semVista, sel=lunesDe(doc.fecha), hoy=isoHoy();
+  document.getElementById("semMes").textContent=MESES[m]+" "+y;
+  const primero=new Date(Date.UTC(y,m,1)), ultimo=new Date(Date.UTC(y,m+1,0));
+  let h='<div class="sg-h">'+["Lun","Mar","Mié","Jue","Vie"].map(x=>'<span>'+x+'</span>').join("")+'</div>';
+  for(let lun=new Date(primero.getTime()-((primero.getUTCDay()+6)%7)*864e5); lun<=ultimo; lun=new Date(lun.getTime()+7*864e5)){
+    const cel=[0,1,2,3,4].map(k=>new Date(lun.getTime()+k*864e5));
+    if(!cel.some(c=>c.getUTCMonth()===m)) continue;
+    h+='<button class="sg-f'+(isoDe(cel[0])===sel?" sel":"")+'" data-iso="'+isoDe(cel[0])+'" aria-label="Semana del '+cel[0].getUTCDate()+'">'+
+      cel.map(c=>'<span class="'+(c.getUTCMonth()!==m?"fuera":"")+(isoDe(c)===hoy?" hoy":"")+'">'+c.getUTCDate()+'</span>').join("")+'</button>';
+  }
+  document.getElementById("semGrid").innerHTML=h;
+}
+function abrirSemana(){
+  const w=new Date(lunesDe(doc.fecha)+"T00:00:00Z"); w.setUTCDate(w.getUTCDate()+2);
+  semVista={y:w.getUTCFullYear(),m:w.getUTCMonth()}; pintarSemGrid(); dlgSemana.showModal();
+}
+
 function vistaCuerpo(id){
   const bl=doc[id]||[], conTablas=["desarrollo","resumen","acuerdos","anexos","motivos"].indexOf(id)>=0;
-  return '<section class="hoja" data-sec="'+id+'"><div class="cabsec"><h2>'+esc(rotulo(doc.tipo,id))+'</h2>'+
-  (iaDe(doc.tipo,id)?'<button class="btn mini" data-ia="'+id+'" title="Copia el texto de esta sección con las instrucciones para tu IA">Asesor</button>':'')+'</div>'+
-  '<p class="pista">'+esc(SEC[id].pista)+'</p>'+
+  const cal=doc.tipo==="semanal"&&id==="resumen";
+  const herr=
   '<div class="zona" id="zona-'+id+'"><p>Arrastra aquí fotos, planillas de Excel, PDF o correos.<br>En el teléfono, toca para elegir archivos.</p></div>'+
   '<div class="acciones">'+
   '<button class="btn mini" data-add="texto" data-sec="'+id+'">Texto</button>'+
@@ -768,7 +939,11 @@ function vistaCuerpo(id){
   '<button class="btn mini" data-pick="inImg" data-sec="'+id+'">Imagen</button>'+
   '<button class="btn mini" data-pick="inArch" data-sec="'+id+'">Adjuntar</button></div>'+
   bl.map((b,i)=>pintarBloque(id,b,i,bl.length)).join("")+
-  (!bl.length?'<div class="aviso">Sección vacía. Empieza con «Texto» o adjunta algo.</div>':"")+
+  (!bl.length&&!cal?'<div class="aviso">Sección vacía. Empieza con «Texto» o adjunta algo.</div>':"");
+  return '<section class="hoja" data-sec="'+id+'"><div class="cabsec"><h2>'+esc(rotulo(doc.tipo,id))+'</h2>'+
+  (iaDe(doc.tipo,id)&&!cal?'<button class="btn mini" data-ia="'+id+'" title="Copia el texto de esta sección con las instrucciones para tu IA">Asesor</button>':'')+'</div>'+
+  (cal?vistaCalendario()+'<details class="extras"'+(bl.length?" open":"")+'><summary>Foto, tabla o texto extra</summary>'+herr+'</details>'
+      :'<p class="pista">'+esc(SEC[id].pista)+'</p>'+herr)+
   botonesPie(id)+'</section>';
 }
 
@@ -841,6 +1016,8 @@ function marcasIA(){
   secsDe(doc.tipo).forEach(s=>{
     if(BLOQUES_SECS.indexOf(s)<0) return;
     let n=0; (doc[s]||[]).forEach(b=>{ if(b.tipo==="texto") n+=((b.txt||"").match(/\[completar[^\]]*\]/gi)||[]).length; });
+    if(s==="resumen"&&doc.tipo==="semanal"&&Array.isArray(doc.dias))
+      doc.dias.forEach(d=>d.t.forEach(x=>{ n+=((x||"").match(/\[completar[^\]]*\]/gi)||[]).length; }));
     if(n) out.push({s:s,n:n});
   });
   return out;
@@ -848,7 +1025,7 @@ function marcasIA(){
 
 function vistaRevisar(){
   const r=req(), faltan=r.filter(c=>!campoLleno(c));
-  const nom=c=>CABECERA[c]||rotulo(doc.tipo,c);
+  const nom=c=>CABECERA[c]||(c==="resumen"&&doc.tipo==="semanal"&&Array.isArray(doc.dias)&&diasFaltan().length?rotulo(doc.tipo,c)+" (falta: "+diasFaltan().map(rotDia).join(", ")+")":rotulo(doc.tipo,c));
   return '<section class="hoja"><h2 class="no-print">Revisar y exportar</h2>'+
   '<p class="pista no-print">Así va a salir el informe. Si ves algo que corregir, toca «Editar aquí».</p>'+
   (faltan.length?'<div class="aviso no-print"><b>Falta completar</b>'+faltan.map(nom).join(", ")+'. Puedes exportar igual; lo que falte sale marcado en rojo.</div>'
@@ -888,11 +1065,11 @@ function papelHTML(edit){
       return '<div class="tx">'+(it.pend?pend:esc(it.txt))+'</div>';
     }
     if(it.t==="tabla"){
-      const nc=Math.max(1,...it.filas.map(f=>f.length));   /* en pantalla chica la tabla se desplaza de lado, no se aplasta */
+      const ceT=it.cal?"":ce, nc=Math.max(1,...it.filas.map(f=>f.length));   /* en pantalla chica la tabla se desplaza de lado, no se aplasta */
       return '<figure><div class="tw"><table class="datos" style="min-width:'+Math.min(nc*72,960)+'px"><tbody>'+it.filas.map((f,ri)=>'<tr>'+f.map((c,ci)=>{
         const t=(it.encab&&ri===0)?"th":"td";
-        return '<'+t+(it.bid?' data-w="cel:'+it.sec+':'+it.bid+':'+ri+':'+ci+'"':'')+ce+'>'+esc(c)+'</'+t+'>';
-      }).join("")+'</tr>').join("")+'</tbody></table></div>'+cap(it)+'</figure>';
+        return '<'+t+(it.bid?' data-w="cel:'+it.sec+':'+it.bid+':'+ri+':'+ci+'"':'')+ceT+'>'+esc(c)+'</'+t+'>';
+      }).join("")+'</tr>').join("")+'</tbody></table></div>'+(it.cal&&edit?'<p class="no-print" style="font-size:12px;color:#4a5560;text-align:center;margin:4px 0 0">Para cambiar esto, vuelve a «Trabajo realizado» (calendario).</p>':"")+cap(it)+'</figure>';
     }
     if(it.t==="graf") return '<figure>'+graficoSVG(it.tabla)+cap(it)+'</figure>';
     if(it.t==="img"){
@@ -946,7 +1123,9 @@ function bajar(blob,nombre){
 }
 
 function conectar(){
-  const p=document.getElementById("panel");
+  const p=document.getElementById("panel"); conectarCal();
+  p.querySelectorAll("[data-sem]").forEach(b=>b.onclick=()=>moverSemana(+b.dataset.sem));
+  const sa=document.getElementById("semAbrir"); if(sa) sa.onclick=abrirSemana;
   p.querySelectorAll("[data-campo]").forEach(el=>el.oninput=()=>{doc[el.dataset.campo]=el.value;ajustaSemanal();tocar()});
   p.querySelectorAll("[data-ir]").forEach(b=>b.onclick=()=>{seccionActiva=b.dataset.ir;render();scrollTo({top:0})});
   p.querySelectorAll("[name=est]").forEach(r=>r.onchange=()=>{doc.estadoSemana=r.value;tocar();render()});
@@ -1126,6 +1305,11 @@ document.getElementById("dlgApariencia").addEventListener("click",e=>{
 document.getElementById("btnApariencia").onclick=()=>{pintarApariencia();dlgApariencia.showModal()};
 document.getElementById("btnAparReset").onclick=()=>{["fuente","paleta","tema","informe"].forEach(k=>lsSet(k,null));aplicaApariencia();pintarApariencia()};
 aplicaApariencia();
+document.getElementById("dlgSemana").addEventListener("click",e=>{
+  const m=e.target.closest("[data-smes]"), f=e.target.closest("[data-iso]");
+  if(m){ const d=new Date(Date.UTC(semVista.y,semVista.m+(+m.dataset.smes),1)); semVista={y:d.getUTCFullYear(),m:d.getUTCMonth()}; pintarSemGrid(); }
+  else if(f){ fijarSemana(f.dataset.iso); dlgSemana.close(); }
+});
 document.querySelectorAll("[data-cerrar]").forEach(b=>b.onclick=()=>b.closest("dialog").close());
 document.querySelectorAll("dialog").forEach(d=>d.addEventListener("click",e=>{if(e.target===d)d.close()}));
 

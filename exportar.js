@@ -47,6 +47,33 @@
     return { n: n, anio: jue.getUTCFullYear(), ini: f(lun), fin: f(vie),
              etiqueta: "Semana " + n + " (" + f(lun) + " - " + f(vie) + ")" };
   }
+  /* Los cinco días laborales (lunes a viernes) de la semana de la fecha elegida */
+  var NOMBRES_DIA = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
+  function diasSemana(iso) {
+    var p = String(iso || "").split("-"); if (p.length !== 3) return null;
+    var d = new Date(Date.UTC(+p[0], +p[1] - 1, +p[2])); if (isNaN(d)) return null;
+    var lun = new Date(d); lun.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7));
+    var z = function (n) { return ("0" + n).slice(-2); };
+    return NOMBRES_DIA.map(function (nom, i) {
+      var x = new Date(lun); x.setUTCDate(lun.getUTCDate() + i);
+      return { nombre: nom, corto: nom.slice(0, 3), dd: z(x.getUTCDate()), mm: z(x.getUTCMonth() + 1),
+               iso: x.getUTCFullYear() + "-" + z(x.getUTCMonth() + 1) + "-" + z(x.getUTCDate()) };
+    });
+  }
+  /* Trabajo realizado del entregable semanal: una fila por día, con sus actividades */
+  function itemCalendario(doc) {
+    var ds = diasSemana(doc.fecha) || [], filas = [["Día", "Actividades"]];
+    for (var i = 0; i < 5; i++) {
+      var d = (doc.dias || [])[i] || {}, txt;
+      if (d.libre) txt = d.libre;
+      else {
+        var ts = (d.t || []).map(function (x) { return String(x || "").trim(); }).filter(function (x) { return x; });
+        txt = ts.length > 1 ? ts.map(function (x) { return "• " + x; }).join("\n") : (ts[0] || "[pendiente]");
+      }
+      filas.push([ds[i] ? ds[i].nombre + " " + ds[i].dd + "/" + ds[i].mm : "Día " + (i + 1), txt]);
+    }
+    return { t: "tabla", filas: filas, encab: true, pie: "", sec: "resumen", cal: true };
+  }
   function peso(n) { n = n || 0; return n < 1024 ? n + " B" : n < 1048576 ? (n / 1024).toFixed(0) + " KB" : (n / 1048576).toFixed(1) + " MB"; }
   function vacio(s) { return !String(s == null ? "" : s).trim(); }
 
@@ -153,6 +180,10 @@
       if (s === "cumplimiento") {
         var et = { cumplido: "Se cumplió", parcial: "Se cumplió en parte", no: "No se cumplió" }[doc.estadoSemana];
         filas.push({ label: label, sec: s, items: et ? [{ t: "p", txt: et }] : pend() });
+        return;
+      }
+      if (doc.tipo === "semanal" && s === "resumen" && Array.isArray(doc.dias)) {
+        filas.push({ label: label, sec: s, items: [itemCalendario(doc)].concat((doc[s] || []).length ? itemsDe(doc[s], cfg, s) : []) });
         return;
       }
       filas.push({ label: label, sec: s, items: itemsDe(doc[s] || [], cfg, s) });
@@ -536,7 +567,7 @@
 
   root.Exp = {
     construir: construir, preparar: preparar, aDocx: aDocx, aPDF: aPDF,
-    nombreBase: nombreBase, semana: semana, estiloDe: estiloDe, modoDe: modoDe, LIMITE_EN_LINEA: LIMITE_EN_LINEA,
+    nombreBase: nombreBase, semana: semana, diasSemana: diasSemana, estiloDe: estiloDe, modoDe: modoDe, LIMITE_EN_LINEA: LIMITE_EN_LINEA,
     util: { dataURLaBytes: dataURLaBytes, cargarImagen: cargarImagen, svgAPng: svgAPng, repartir: repartir, pesosColumnas: pesosColumnas }
   };
 })(typeof window !== "undefined" ? window : globalThis);
