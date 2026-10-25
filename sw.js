@@ -1,13 +1,13 @@
 /* Service worker: deja la app disponible sin conexión.
    No guarda datos de usuario; solo los archivos de la propia página. */
-const CACHE = "informe-v9";
+const CACHE = "informe-v10";
 
 /* lo imprescindible para abrir la app */
 const NUCLEO = [
   "./",
   "./index.html",
-  "./exportar.js",
-  "./prompts.js",
+  "./exportar.js?v=10",
+  "./prompts.js?v=10",
   "./manifest.webmanifest",
   "./icon-192.png",
   "./icon-512.png"
@@ -62,7 +62,7 @@ function redPrimero(req, clave) {
     let listo = false;
     const usarCopia = () => caches.match(clave || req).then(hit => { if (hit && !listo) { listo = true; resolve(hit); } });
     const t = setTimeout(usarCopia, 4000);
-    fetch(req).then(r => {
+    fetch(req, { cache: "no-cache" }).then(r => {
       clearTimeout(t);
       if (r && r.ok) { const copia = r.clone(); caches.open(CACHE).then(c => c.put(clave || req, copia)); }
       if (!listo) { listo = true; resolve(r); }

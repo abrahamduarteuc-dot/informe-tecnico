@@ -493,8 +493,13 @@ details.extras > summary::before{content:"+ ";color:var(--azul)}details.extras[o
   <div class="dpie"><button class="btn p" data-cerrar>Entendido</button></div>
 </dialog>
 
-<script src="exportar.js"></script>
-<script src="prompts.js"></script>
+<script src="exportar.js?v=10"></script>
+<script src="prompts.js?v=10"></script>
+<script>
+/* si el teléfono entregó un exportar.js de otra versión, se recarga una vez para traer el correcto */
+(function(){ var ok=window.Exp&&typeof Exp.diasSemana==="function"&&!Exp.TRAMOS2;
+  try{ if(!ok&&!sessionStorage.getItem("recargaV")){ sessionStorage.setItem("recargaV","1"); location.reload(); } }catch(e){} })();
+</script>
 <script>
 
 const SEC = {
